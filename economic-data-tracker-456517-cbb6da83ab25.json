@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "economic-data-tracker-456517",
+  "private_key_id": "cbb6da83ab257297ac6570ddd5ddbf9212ae35c3",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQC7MECYjno/yD72\nJDT6zypg9GAh+OnPuNbnNOXdlS1pdleiRzzV/WgqWmzu5e0WwdUDSLUpDyjzZzMu\n+WG/xgD5EkEPN2TJPzTXYBLKqw1A2jz0iGAPj3SjI7oDoRR9Jaf6cReDz566nlzC\nljVjvpQsQKaqkknzlzx/1ygVIxtUMZ3uIoy+P5ucvZzrKPC/9BC4WnnkkMTVzhyp\nKKU66MzCei5+00tmMlojk1cJymxSISWyaeK2bGa1GfDgGA/EG5Z+idOcRzrZWODT\nouNdV+rHj8RAy6CSigB6in9YWycBp4uudE/lPfx1rJzVita1fhSpijq2J9Fto/BP\nIiCrcMElAgMBAAECggEABHSZ+6zxKs6myv/idUbUPNG27mVo6/gRFhiWURTMK4AK\nMXNjIWUiTdca/oEMCI2NYazhHQH+nkk0+MJYVIgkvUj1MfobpMZOSRhrvMBfX3gN\nA+AGyKVdksWBV7VFkiiri89AeUjKP9Rlo6m6Hxk/QyIN0C5iYrvVOuYW5Dvn77Qi\neeuGsmxafj1Z5Y6C3pdUAiAXrPTKpcda/6OheZTt8LQObwg7RqXWsK9noWhLIYAf\n0JpiQVymRYXbrDfCxVx4OwqZvq5AQeuu+02i9ROcfStlYSnIQ3WsIHARQJjDpRrw\nQ4B/l1mB6NHhNReAbhR3AuRhgrE6HHL7+kg9Kq0YMQKBgQD1p1s1reWAb6C8RGTk\nlevgyXbAYCNM3V/RqrbuueE0rRin2g6+CnrpB0bEp+VO315jTTn/rjCNcuutjv/x\nMvH/DU+WBSiyiH5i5zJjnVArJ6NgTL+5verFGoeeFLcl+RuIrAqm1CB0odO/5yAY\nEbMfPcanGGATXmTxOYXtU0AcNQKBgQDDEoXCJ6JCrzXT0yjL8Fd9zEXa2evbvROk\n8QVB8znO+/w7q9amS67oQ+AY3IamJVOlL+n8J9PAuRJfeg0Hsct46nAQKtj1nPhE\nS5rIhp7+ZGkwZiHLk2J0nj7323ffhXoFpR0L0YUK1JRGEB8H9PMOJKcwCx8YeDv8\nbbdQjntPMQKBgQDYaMoCfSLsxepdUQdtFOJLElCKY2dVxMQwCmvD3X8Xj9JjtMc+\nBi+HcMCYaKyrkj4tzw/kPglJ407ahFrXmyDzpz9Qk1TqCzMEYFbUyPaiPfZA1Pwm\nXrgfUiLdUbSTQGRQP/fWRpQdC59mtO9iJN2fDSYfeGrTRVo55IomrCuTbQKBgGGY\n4c0q8Ta13JN3YUDvpYZt7kE5qJSO+8YZRE0juLeDQUZFiiY3VXIli3hE1SVJJZlO\n6J1c+8e/kJ6uPNitrqR3fsvH9Dama1wYC3/qQp/6ctphLuVgfvDjv5NYfZgaetta\nKbchA5RQmUKYjD354qUf13nlBpDCjxiTeBTYxH7xAoGBAMZPEciqPPW3G33o+M+A\nKl5gD9LMMtJ5+O6RjBHu+o7B+cjRC5eZAt54h4J2l/3WkdzVAQp2xfVKvb9epKtb\nFoMK6n2LGNr6Hz3FN7hjqrSX9/0TX3Rvnpqkte4TJ45qiZkRLJDOmIiGZKNluIzR\ni1b2Odok02v61MpDROoOKczs\n-----END PRIVATE KEY-----\n",
+  "client_email": "updater@economic-data-tracker-456517.iam.gserviceaccount.com",
+  "client_id": "116675848448434874134",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/updater%40economic-data-tracker-456517.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}
