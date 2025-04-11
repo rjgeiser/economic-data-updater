@@ -11,8 +11,7 @@ EIA_API_KEY = os.getenv("EIA_API_KEY")
 GOOGLE_CREDENTIALS = os.getenv("GOOGLE_CREDENTIALS")
 GOOGLE_SHEET_ID = os.getenv("GOOGLE_SHEET_ID")
 
-creds_dict = json.loads(GOOGLE_CREDENTIALS)
-credentials = Credentials.from_service_account_info(creds_dict, scopes=["https://www.googleapis.com/auth/spreadsheets"])
+credentials = Credentials.from_service_account_file("service_account.json", scopes=...)
 gc = gspread.authorize(credentials)
 sheet = gc.open_by_key(GOOGLE_SHEET_ID)
 
