@@ -11,7 +11,7 @@ EIA_API_KEY = os.getenv("EIA_API_KEY")
 GOOGLE_CREDENTIALS = os.getenv("GOOGLE_CREDENTIALS")
 GOOGLE_SHEET_ID = os.getenv("GOOGLE_SHEET_ID")
 
-credentials = Credentials.from_service_account_file("economic-data-tracker-456517-cbb6da83ab25.json", scopes=...)
+credentials = Credentials.from_service_account_file("economic-data-tracker-456517-cbb6da83ab25.json", scopes=["https://www.googleapis.com/auth/spreadsheets"])
 gc = gspread.authorize(credentials)
 sheet = gc.open_by_key(GOOGLE_SHEET_ID)
 
