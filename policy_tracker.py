@@ -88,14 +88,17 @@ if new_rows:
 else:
     print("✔️ No new PRORULEs to add.")
 
-# Append metadata rows (if not already present)
+# Append clean metadata row if not already present
 existing_meta = meta_ws.get_all_values()
-policy_meta = [
-    ["Policy_Events", "Document Types", "PRORULE (Proposed Rules) only"],
-    ["Policy_Events", "Agency Filters", "497 (Treasury), 2 (Presidency), 88 (EPA), 271 (Labor), 367 (Federal Reserve), 221 (HHS), 54 (FCC), 304 (SEC), 43 (Commerce), 6 (USAID)"],
-    ["Policy_Events", "Date Range", f"{start_date_str} to {end_date_str}"],
-    ["Policy_Events", "Source", "Federal Register API"]
+policy_metadata = [
+    "Policy_Events",
+    "Proposed rulemakings from 10 key federal agencies",
+    "Federal Register",
+    "PRORULE",
+    "Filtered by agency ID; daily tracker of new entries since Jan 1, 2021",
+    "https://www.federalregister.gov"
 ]
-for row in policy_meta:
-    if row not in existing_meta:
-        meta_ws.append_row(row)
+
+if policy_metadata not in existing_meta:
+    meta_ws.append_row(policy_metadata)
+
