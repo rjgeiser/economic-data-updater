@@ -10,7 +10,6 @@ from log_update_notes import log_update
 
 # API keys from environment
 FRED_API_KEY = os.environ["FRED_API_KEY"]
-EIA_API_KEY = os.environ["EIA_API_KEY"]
 START_DATE = "2021-01-01"
 END_DATE = datetime.today().strftime("%Y-%m-%d")
 
@@ -46,44 +45,18 @@ egg_rows.sort(key=lambda x: x[0])
 update_sheet("Egg_Prices", ["Date", "Price (USD per dozen)"], egg_rows,
              "FRED data refreshed from Jan 2021", "https://fred.stlouisfed.org/series/APU0000708111")
 
-def fetch_eia_gas_v2(api_key):
-    base_url = "https://api.eia.gov/v2/petroleum/pri/gnd/data/"
-    params = {
-        "frequency": "weekly",
-        "data[0]": "value",
-        "facets[series][]": "EMM_EPMR_PTE_NUS_DPG",
-        "start": "20210101",
-        "end": "20211231",
-        "sort[0][column]": "period",
-        "sort[0][direction]": "asc",
-        "offset": 0,
-        "length": 100,
-        "api_key": api_key
-    }
+# Gas Prices from FRED (original source: EIA)
+gas_url = f"https://api.stlouisfed.org/fred/series/observations?series_id=GASREGW&observation_start={START_DATE}&observation_end={END_DATE}&api_key={FRED_API_KEY}&file_type=json"
+try:
+    gas_obs = requests.get(gas_url).json().get("observations", [])
+    gas_rows = [[obs["date"], float(obs["value"])] for obs in gas_obs if obs["value"] not in [".", ""]]
+    gas_rows.sort(key=lambda x: x[0])
 
-    try:
-        response = requests.get(base_url, params=params)
-        response.raise_for_status()
-        return response.json()["response"]["data"]
-    except Exception as e:
-        print("❌ Failed to fetch EIA v2 gas data:", str(e))
-        return []
-
-# Fetch and parse gas prices using v2 API
-gas_v2_data = fetch_eia_gas_v2(EIA_API_KEY)
-gas_rows = []
-
-for entry in gas_v2_data:
-    date = entry.get("period")
-    value = entry.get("value")
-    if date and isinstance(value, (float, int)):
-        gas_rows.append([date, float(value)])
-
-gas_rows.sort(key=lambda x: x[0])
-
-update_sheet("Gas_Prices", ["Date", "Price (USD per gallon)"], gas_rows,
-             "EIA v2 gas price data refreshed from Jan 2021",
-             "https://www.eia.gov/petroleum/gasdiesel/")
+    update_sheet("Gas_Prices", ["Date", "Price (USD per gallon)"], gas_rows,
+                 "FRED gas price data (weekly) refreshed from Jan 2021",
+                 "https://fred.stlouisfed.org/series/GASREGW")
+except Exception as e:
+    print("❌ Failed to fetch or process gas prices from FRED:", str(e))
 
 # Interest Rates
 rate_url = f"https://api.stlouisfed.org/fred/series/observations?series_id=DGS10&observation_start={START_DATE}&api_key={FRED_API_KEY}&file_type=json"
