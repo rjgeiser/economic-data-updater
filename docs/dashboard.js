@@ -13,7 +13,7 @@ function loadScript(src, callback) {
   document.head.appendChild(script);
 }
 
-loadScript("https://cdn.jsdelivr.net/npm/tabletop@1.6.0/tabletop.min.js", () => {
+loadScript("https://unpkg.com/tabletop@1.5.4/tabletop.js", () => {
   Tabletop.init({
     key: "12_lLnv3t7Om8XHRwFA7spCJ8at282WE7hisxu23gITo",
     simpleSheet: false,
