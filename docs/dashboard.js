@@ -1,109 +1,95 @@
 console.log("🚧 dashboard.js loaded");
 
-function loadScript(src, callback) {
-  const script = document.createElement("script");
-  script.src = src;
-  script.onload = () => {
-    console.log(`📦 ${src} loaded`);
-    callback();
-  };
-  script.onerror = () => {
-    console.error(`❌ Failed to load ${src}`);
-  };
-  document.head.appendChild(script);
-}
+Tabletop.init({
+  key: "12_lLnv3t7Om8XHRwFA7spCJ8at282WE7hisxu23gITo",
+  simpleSheet: false,
+  callback: (data) => {
+    document.getElementById("root").innerHTML = "<p class='text-red-500'>🚀 Callback fired!</p>";
+    console.log("✅ Tabletop loaded!");
+    console.log("🗂 Available tabs:", Object.keys(data));
 
-loadScript("https://unpkg.com/tabletop@1.5.4/tabletop.js", () => {
-  Tabletop.init({
-    key: "12_lLnv3t7Om8XHRwFA7spCJ8at282WE7hisxu23gITo",
-    simpleSheet: false,
-    callback: (data) => {
-      document.getElementById("root").innerHTML = "<p class='text-red-500'>🚀 Callback fired!</p>";
-      console.log("✅ Tabletop loaded!");
-      console.log("🗂 Available tabs:", Object.keys(data));
-
-      const parseSheet = (name) => {
-        return data[name].elements.map((row) => ({
-          date: row.Date,
-          value: parseFloat(row["Price (USD)"] || row["Price (USD per gallon)"] || "0")
-        }));
-      };
-
-      const sheets = {
-        Eggs: parseSheet("Egg_Prices"),
-        Gas: parseSheet("Gas_Prices"),
-        iPhone: parseSheet("iPhone_Prices"),
-        RAV4: parseSheet("Car_Prices")
-      };
-
-      const merged = {};
-      Object.entries(sheets).forEach(([label, rows]) => {
-        rows.forEach(({ date, value }) => {
-          if (!merged[date]) merged[date] = { date };
-          merged[date][label] = value;
-        });
-      });
-
-      const finalData = Object.values(merged).sort((a, b) =>
-        new Date(a.date) - new Date(b.date)
-      );
-
-      const container = document.getElementById("root");
-      container.innerHTML = `
-        <div class="p-4">
-          <h1 class="text-2xl font-semibold mb-4">📊 Economic Data Overview</h1>
-          <canvas id="chartCanvas" height="400"></canvas>
-        </div>
-      `;
-
-      const ctx = document.getElementById("chartCanvas").getContext("2d");
-
-      const labels = finalData.map((d) => d.date);
-      const datasets = ["Eggs", "Gas", "iPhone", "RAV4"].map((key, i) => ({
-        label: key,
-        data: finalData.map((d) => d[key] || null),
-        borderColor: ["#f87171", "#60a5fa", "#34d399", "#fbbf24"][i],
-        fill: false,
-        tension: 0.3
+    const parseSheet = (name) => {
+      return data[name].elements.map((row) => ({
+        date: row.Date,
+        value: parseFloat(row["Price (USD)"] || row["Price (USD per gallon)"] || "0")
       }));
+    };
 
-      new Chart(ctx, {
-        type: "line",
-        data: {
-          labels,
-          datasets
+    const sheets = {
+      Eggs: parseSheet("Egg_Prices"),
+      Gas: parseSheet("Gas_Prices"),
+      iPhone: parseSheet("iPhone_Prices"),
+      RAV4: parseSheet("Car_Prices")
+    };
+
+    const merged = {};
+    Object.entries(sheets).forEach(([label, rows]) => {
+      rows.forEach(({ date, value }) => {
+        if (!merged[date]) merged[date] = { date };
+        merged[date][label] = value;
+      });
+    });
+
+    const finalData = Object.values(merged).sort((a, b) =>
+      new Date(a.date) - new Date(b.date)
+    );
+
+    const container = document.getElementById("root");
+    container.innerHTML = `
+      <div class="p-4">
+        <h1 class="text-2xl font-semibold mb-4">📊 Economic Data Overview</h1>
+        <canvas id="chartCanvas" height="400"></canvas>
+      </div>
+    `;
+
+    const ctx = document.getElementById("chartCanvas").getContext("2d");
+
+    const labels = finalData.map((d) => d.date);
+    const datasets = ["Eggs", "Gas", "iPhone", "RAV4"].map((key, i) => ({
+      label: key,
+      data: finalData.map((d) => d[key] || null),
+      borderColor: ["#f87171", "#60a5fa", "#34d399", "#fbbf24"][i],
+      fill: false,
+      tension: 0.3
+    }));
+
+    new Chart(ctx, {
+      type: "line",
+      data: {
+        labels,
+        datasets
+      },
+      options: {
+        responsive: true,
+        interaction: {
+          mode: "index",
+          intersect: false
         },
-        options: {
-          responsive: true,
-          interaction: {
-            mode: "index",
-            intersect: false
+        plugins: {
+          legend: {
+            position: "top"
           },
-          plugins: {
-            legend: {
-              position: "top"
-            },
+          title: {
+            display: true,
+            text: "Prices and Economic Data Over Time"
+          }
+        },
+        scales: {
+          x: {
             title: {
               display: true,
-              text: "Prices and Economic Data Over Time"
+              text: "Date"
             }
           },
-          scales: {
-            x: {
-              title: {
-                display: true,
-                text: "Date"
-              }
-            },
-            y: {
-              title: {
-                display: true,
-                text: "Value (USD)"
-              }
+          y: {
+            title: {
+              display: true,
+              text: "Value (USD)"
             }
           }
         }
-      });
-    }
-  });
+      }
+    });
+  }
 });
+
