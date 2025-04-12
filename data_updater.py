@@ -60,7 +60,7 @@ def fetch_eia_data_with_retry(url, retries=3, delay=3):
                 raise
 
 # Gas Prices (with retry)
-eia_url = f"https://api.eia.gov/series/?api_key={EIA_API_KEY}&series_id=PET.EMM_EPMR_PTE_NUS_DPG.W&start={START_DATE.replace('-', '')}&end={END_DATE.replace('-', '')}"
+eia_url = f"https://api.eia.gov/series/?api_key={EIA_API_KEY}&series_id=PET.RWTC.D&start={START_DATE.replace('-', '')}&end={END_DATE.replace('-', '')}"
 
 try:
     eia_json = fetch_eia_data_with_retry(eia_url)
