@@ -46,7 +46,7 @@ update_sheet("Egg_Prices", ["Date", "Price (USD per dozen)"], egg_rows,
              "FRED data refreshed from Jan 2021", "https://fred.stlouisfed.org/series/APU0000708111")
 
 # Gas Prices (from EIA)
-eia_url = f"https://api.eia.gov/series/?api_key={EIA_API_KEY}&series_id=PET.EMM_EPMR_PTE_NUS_DPG.W&start={START_DATE}&end={END_DATE}"
+eia_url = f"https://api.eia.gov/series/?api_key={EIA_API_KEY}&series_id=PET.EMM_EPMR_PTE_NUS_DPG.W&start={START_DATE.replace('-', '')}&end={END_DATE.replace('-', '')}"
 response = requests.get(eia_url)
 gas_data = []
 
