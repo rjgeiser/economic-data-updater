@@ -20,7 +20,7 @@ This project automates the collection and logging of economic and public policy 
 This project uses GitHub Actions to automatically update data and metadata:
 
 - **Daily**:
-  - FRED and EIA economic data
+  - FRED economic data
   - Public policy (`PRORULE`) tracking
   - Price scraping and rollover logic
 - **Monthly**:
@@ -50,4 +50,4 @@ This repository will soon integrate with a GitHub Pages frontend to visualize da
 
 ---
 
-Maintained by [@rjgeiser](https://github.com/rjgeiser) — questions welcome.
+Maintained by [@rjgeiser](https://github.com/rjgeiser) — questions welcome, kudos preferred.
