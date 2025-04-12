@@ -3,7 +3,13 @@ console.log("🚧 dashboard.js loaded");
 function loadScript(src, callback) {
   const script = document.createElement("script");
   script.src = src;
-  script.onload = callback;
+  script.onload = () => {
+    console.log(`📦 ${src} loaded`);
+    callback();
+  };
+  script.onerror = () => {
+    console.error(`❌ Failed to load ${src}`);
+  };
   document.head.appendChild(script);
 }
 
