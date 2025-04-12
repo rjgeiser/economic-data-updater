@@ -3,6 +3,7 @@ import os
 import json
 import requests
 import gspread
+import time
 from datetime import datetime
 from google.oauth2.service_account import Credentials
 from log_update_notes import log_update
@@ -45,13 +46,27 @@ egg_rows.sort(key=lambda x: x[0])
 update_sheet("Egg_Prices", ["Date", "Price (USD per dozen)"], egg_rows,
              "FRED data refreshed from Jan 2021", "https://fred.stlouisfed.org/series/APU0000708111")
 
-# Gas Prices (from EIA)
+def fetch_eia_data_with_retry(url, retries=3, delay=3):
+    for attempt in range(1, retries + 1):
+        try:
+            response = requests.get(url, timeout=10)
+            response.raise_for_status()
+            return response.json()
+        except requests.exceptions.RequestException as e:
+            print(f"Attempt {attempt} failed: {e}")
+            if attempt < retries:
+                time.sleep(delay * attempt)
+            else:
+                raise
+
+# Gas Prices (with retry)
 eia_url = f"https://api.eia.gov/series/?api_key={EIA_API_KEY}&series_id=PET.EMM_EPMR_PTE_NUS_DPG.W&start={START_DATE.replace('-', '')}&end={END_DATE.replace('-', '')}"
-response = requests.get(eia_url)
-gas_data = []
 
 try:
-    gas_series = response.json().get("series", [{}])[0].get("data", [])
+    eia_json = fetch_eia_data_with_retry(eia_url)
+    gas_series = eia_json.get("series", [{}])[0].get("data", [])
+    gas_data = []
+
     for date_str, value in gas_series:
         if len(date_str) == 8:
             formatted_date = f"{date_str[:4]}-{date_str[4:6]}-{date_str[6:8]}"
@@ -59,11 +74,15 @@ try:
             formatted_date = date_str
         if value not in ["", ".", "null", "w", "*"]:
             gas_data.append([formatted_date, float(value)])
+
     gas_data.sort(key=lambda x: x[0])
 
     update_sheet("Gas_Prices", ["Date", "Price (USD per gallon)"], gas_data,
                  "EIA gas price data refreshed from Jan 2021",
                  "https://www.eia.gov/dnav/pet/pet_pri_gnd_dcus_nus_w.htm")
+
+except Exception as e:
+    print("Failed to load or process gas prices after retries:", str(e))
 
 except Exception as e:
     print("Failed to load or process gas prices:", str(e))
