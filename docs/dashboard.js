@@ -11,7 +11,9 @@ loadScript("https://cdn.jsdelivr.net/npm/tabletop@1.6.0/tabletop.min.js", () => 
     key: "12_lLnv3t7Om8XHRwFA7spCJ8at282WE7hisxu23gITo",
     simpleSheet: false,
     callback: (data) => {
-      console.log("Available sheet names:", Object.keys(data));
+      console.log("✅ Tabletop loaded!");
+      console.log("🗂 Available tabs:", Object.keys(data));
+    }
       const parseSheet = (name) =>
         data[name].elements.map((row) => ({
           date: row.Date,
