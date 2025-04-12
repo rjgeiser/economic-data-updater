@@ -4,7 +4,6 @@ Tabletop.init({
   key: "12_lLnv3t7Om8XHRwFA7spCJ8at282WE7hisxu23gITo",
   simpleSheet: false,
   callback: (data) => {
-    document.getElementById("root").innerHTML = "<p class='text-red-500'>🚀 Callback fired!</p>";
     console.log("✅ Tabletop loaded!");
     console.log("🗂 Available tabs:", Object.keys(data));
 
