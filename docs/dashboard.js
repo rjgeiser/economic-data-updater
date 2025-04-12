@@ -1,3 +1,5 @@
+console.log("🚧 dashboard.js loaded");
+
 function loadScript(src, callback) {
   const script = document.createElement("script");
   script.src = src;
@@ -10,6 +12,7 @@ loadScript("https://cdn.jsdelivr.net/npm/tabletop@1.6.0/tabletop.min.js", () => 
     key: "12_lLnv3t7Om8XHRwFA7spCJ8at282WE7hisxu23gITo",
     simpleSheet: false,
     callback: (data) => {
+      document.getElementById("root").innerHTML = "<p class='text-red-500'>🚀 Callback fired!</p>";
       console.log("✅ Tabletop loaded!");
       console.log("🗂 Available tabs:", Object.keys(data));
 
