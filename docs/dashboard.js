@@ -1,9 +1,14 @@
 
-const SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vST6GB3NYi4TQFCB-tF46TXuqHoX5KTd1jjgcO4i2o8CMlu-M9fUC9ZqvvsxynK2eOl0ZJ8cD8pLBt_/pub?output=tsv";
+function loadScript(src, callback) {
+  const script = document.createElement("script");
+  script.src = src;
+  script.onload = callback;
+  document.head.appendChild(script);
+}
 
-window.onload = function () {
+loadScript("https://cdn.jsdelivr.net/npm/tabletop@1.6.0/tabletop.min.js", () => {
   Tabletop.init({
-    key: SHEET_URL,
+    key: "https://docs.google.com/spreadsheets/d/e/2PACX-1vST6GB3NYi4TQFCB-tF46TXuqHoX5KTd1jjgcO4i2o8CMlu-M9fUC9ZqvvsxynK2eOl0ZJ8cD8pLBt_/pub?output=tsv",
     simpleSheet: false,
     callback: (data) => {
       const parseSheet = (name) =>
@@ -11,31 +16,30 @@ window.onload = function () {
           date: row.Date,
           value: parseFloat(row["Price (USD)"] || row["Price (USD per gallon)"] || "0")
         }));
-  
+
       const sheets = {
         Eggs: parseSheet("Egg_Prices"),
         Gas: parseSheet("Gas_Prices"),
         iPhone: parseSheet("iPhone_Prices"),
         RAV4: parseSheet("Car_Prices")
       };
-  
+
       const merged = {};
-  
       Object.entries(sheets).forEach(([label, rows]) => {
         rows.forEach(({ date, value }) => {
           if (!merged[date]) merged[date] = { date };
           merged[date][label] = value;
         });
       });
-  
+
       const finalData = Object.values(merged).sort((a, b) =>
         new Date(a.date) - new Date(b.date)
       );
-  
+
       renderChart(finalData);
     }
   });
-  
+
   function renderChart(data) {
     const container = document.getElementById("root");
     container.innerHTML = `
@@ -44,9 +48,9 @@ window.onload = function () {
         <canvas id="chartCanvas" height="400"></canvas>
       </div>
     `;
-  
+
     const ctx = document.getElementById("chartCanvas").getContext("2d");
-  
+
     const labels = data.map((d) => d.date);
     const datasets = ["Eggs", "Gas", "iPhone", "RAV4"].map((key, i) => ({
       label: key,
@@ -55,7 +59,7 @@ window.onload = function () {
       fill: false,
       tension: 0.3
     }));
-  
+
     new Chart(ctx, {
       type: "line",
       data: {
@@ -94,4 +98,5 @@ window.onload = function () {
       }
     });
   }
-};
+});
+
