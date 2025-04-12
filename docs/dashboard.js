@@ -8,7 +8,7 @@ function loadScript(src, callback) {
 
 loadScript("https://cdn.jsdelivr.net/npm/tabletop@1.6.0/tabletop.min.js", () => {
   Tabletop.init({
-    key: "https://docs.google.com/spreadsheets/d/e/2PACX-1vST6GB3NYi4TQFCB-tF46TXuqHoX5KTd1jjgcO4i2o8CMlu-M9fUC9ZqvvsxynK2eOl0ZJ8cD8pLBt_/pub?output=tsv",
+    key: "12_lLnv3t7Om8XHRwFA7spCJ8at282WE7hisxu23gITo",
     simpleSheet: false,
     callback: (data) => {
       console.log("Available sheet names:", Object.keys(data));
