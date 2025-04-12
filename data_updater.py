@@ -1,16 +1,27 @@
+import os
+import json
 import requests
 import gspread
 from datetime import datetime
+from google.oauth2.service_account import Credentials
 
 # Configuration: API keys and date range
-FRED_API_KEY = "YOUR_FRED_API_KEY"
-EIA_API_KEY = "YOUR_EIA_API_KEY"
+FRED_API_KEY = os.environ["FRED_API_KEY"]
+EIA_API_KEY = os.environ["EIA_API_KEY"]
 START_DATE = "2021-01-01"
 END_DATE = datetime.today().strftime("%Y-%m-%d")  # Use today's date for end of range
 
-# Google Sheets setup (using service account credentials)
-gc = gspread.service_account(filename="credentials.json")
-sh = gc.open("EconomicData")  # replace with your Google Sheet name or use open_by_key
+# Load credentials from GitHub Secrets (JSON string)
+scopes = [
+    "https://www.googleapis.com/auth/spreadsheets",
+    "https://www.googleapis.com/auth/drive"
+]
+creds_dict = json.loads(os.environ["GOOGLE_CREDENTIALS"])
+credentials = Credentials.from_service_account_info(creds_dict, scopes=scopes)
+gc = gspread.authorize(credentials)
+
+# Open the target Google Sheet
+sh = gc.open_by_key(os.environ["GOOGLE_SHEET_ID"])
 
 # Define series IDs for each data series
 EGG_SERIES_ID = "APU0000708111"   # Average price of eggs (USD/dozen, U.S. city avg, BLS) via FRED
