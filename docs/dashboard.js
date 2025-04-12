@@ -14,11 +14,12 @@ loadScript("https://cdn.jsdelivr.net/npm/tabletop@1.6.0/tabletop.min.js", () => 
       console.log("✅ Tabletop loaded!");
       console.log("🗂 Available tabs:", Object.keys(data));
 
-      const parseSheet = (name) => {
-        data[name].elements.map((row) => ({
-          date: row.Date,
-          value: parseFloat(row["Price (USD)"] || row["Price (USD per gallon)"] || "0")
-        }));
+    const parseSheet = (name) => {
+      return data[name].elements.map((row) => ({
+        date: row.Date,
+        value: parseFloat(row["Price (USD)"] || row["Price (USD per gallon)"] || "0")
+      }));
+    };
 
       const sheets = {
         Eggs: parseSheet("Egg_Prices"),
