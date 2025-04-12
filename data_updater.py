@@ -70,7 +70,7 @@ def fetch_eia_gas_v2(api_key):
         return []
 
 # Fetch and parse gas prices using v2 API
-gas_v2_data = fetch_eia_gas_v2(EIA_API_KEY, START_DATE, END_DATE)
+gas_v2_data = fetch_eia_gas_v2(EIA_API_KEY)
 gas_rows = []
 
 for entry in gas_v2_data:
