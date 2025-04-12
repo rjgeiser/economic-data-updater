@@ -1,17 +1,19 @@
+
 import os
 import json
 import requests
 import gspread
 from datetime import datetime
 from google.oauth2.service_account import Credentials
+from log_update_notes import log_update
 
-# Configuration: API keys and date range
+# API keys from environment
 FRED_API_KEY = os.environ["FRED_API_KEY"]
 EIA_API_KEY = os.environ["EIA_API_KEY"]
 START_DATE = "2021-01-01"
-END_DATE = datetime.today().strftime("%Y-%m-%d")  # Use today's date for end of range
+END_DATE = datetime.today().strftime("%Y-%m-%d")
 
-# Load credentials from GitHub Secrets (JSON string)
+# Google Sheets auth
 scopes = [
     "https://www.googleapis.com/auth/spreadsheets",
     "https://www.googleapis.com/auth/drive"
@@ -19,104 +21,57 @@ scopes = [
 creds_dict = json.loads(os.environ["GOOGLE_CREDENTIALS"])
 credentials = Credentials.from_service_account_info(creds_dict, scopes=scopes)
 gc = gspread.authorize(credentials)
-
-# Open the target Google Sheet
 sh = gc.open_by_key(os.environ["GOOGLE_SHEET_ID"])
 
-# Define series IDs for each data series
-EGG_SERIES_ID = "APU0000708111"   # Average price of eggs (USD/dozen, U.S. city avg, BLS) via FRED
-GAS_SERIES_ID = "PET.EMM_EPMR_PTE_NUS_DPG.W"  # Weekly U.S. regular gasoline price (USD/gal) via EIA
-INTEREST_SERIES_ID = "DGS10"      # 10-Year Treasury yield (%), daily, via FRED
-STOCK_SERIES_ID = "SP500"        # S&P 500 index, daily, via FRED
-
-# Fetch Egg Prices from FRED (from Jan 2021 onward)
-fred_url = (f"https://api.stlouisfed.org/fred/series/observations?"
-            f"series_id={EGG_SERIES_ID}&observation_start={START_DATE}"
-            f"&api_key={FRED_API_KEY}&file_type=json")
-egg_response = requests.get(fred_url)
-egg_data_json = egg_response.json()
-egg_obs = egg_data_json.get("observations", [])
-egg_rows = []
-for obs in egg_obs:
-    date = obs["date"]               # e.g. "2021-01-01"
-    value_str = obs["value"]
-    if value_str == "." or value_str == "":
-        # Skip missing values (if any) to avoid inserting placeholders
-        continue
-    # Convert numeric value from string to float for proper numeric entry
-    value = float(value_str)
-    egg_rows.append([date, value])
-# Ensure ascending date order (FRED is usually sorted ascending by default)
-egg_rows.sort(key=lambda x: x[0])
-egg_data = [["Date", "Price (USD per dozen)"]] + egg_rows  # Include header
-
-# Fetch Gas Prices from EIA (Jan 2021 to present)
-eia_url = (f"https://api.eia.gov/series/?api_key={EIA_API_KEY}&series_id={GAS_SERIES_ID}"
-           f"&start={START_DATE}&end={END_DATE}")
-gas_response = requests.get(eia_url)
-gas_data_json = gas_response.json()
-gas_series = gas_data_json.get("series", [{}])[0]
-gas_points = gas_series.get("data", [])
-gas_rows = []
-for (date_str, value) in gas_points:
-    # EIA returns dates as YYYYMMDD for weekly data&#8203;:contentReference[oaicite:5]{index=5}; format to YYYY-MM-DD
-    if len(date_str) == 8 and date_str.isdigit():
-        date_formatted = f"{date_str[:4]}-{date_str[4:6]}-{date_str[6:8]}"
-    else:
-        date_formatted = date_str
-    # Convert value to float if available, else None for missing/withheld data
-    val = None
-    if value not in [None, "", ".", "null", "w", "*"]:
-        val = float(value)
-    gas_rows.append([date_formatted, val])
-# Sort by date ascending (EIA data might be in descending order by default)
-gas_rows.sort(key=lambda x: x[0])
-gas_data = [["Date", "Price (USD per gallon)"]] + gas_rows
-
-# Fetch Interest Rates from FRED (10-Year Treasury yield, daily)
-fred_url = (f"https://api.stlouisfed.org/fred/series/observations?"
-            f"series_id={INTEREST_SERIES_ID}&observation_start={START_DATE}"
-            f"&api_key={FRED_API_KEY}&file_type=json")
-rate_response = requests.get(fred_url)
-rate_data_json = rate_response.json()
-rate_obs = rate_data_json.get("observations", [])
-rate_rows = []
-for obs in rate_obs:
-    date = obs["date"]
-    value_str = obs["value"]
-    if value_str == "." or value_str == "":
-        continue  # skip days with no data (market holidays or missing)
-    rate = float(value_str)
-    rate_rows.append([date, rate])
-rate_rows.sort(key=lambda x: x[0])
-interest_data = [["Date", "10-Year Treasury Rate (%)"]] + rate_rows
-
-# Fetch Stock Market data from FRED (S&P 500 index, daily)
-fred_url = (f"https://api.stlouisfed.org/fred/series/observations?"
-            f"series_id={STOCK_SERIES_ID}&observation_start={START_DATE}"
-            f"&api_key={FRED_API_KEY}&file_type=json")
-stock_response = requests.get(fred_url)
-stock_data_json = stock_response.json()
-stock_obs = stock_data_json.get("observations", [])
-stock_rows = []
-for obs in stock_obs:
-    date = obs["date"]
-    value_str = obs["value"]
-    if value_str == "." or value_str == "":
-        continue
-    price = float(value_str)
-    stock_rows.append([date, price])
-stock_rows.sort(key=lambda x: x[0])
-stock_data = [["Date", "S&P 500 Index"]] + stock_rows
-
-# Batch update each worksheet in Google Sheets
-all_sheets_data = {
-    "Egg_Prices": egg_data,
-    "Gas_Prices": gas_data,
-    "Interest_Rates": interest_data,
-    "Stock_Market": stock_data
-}
-for sheet_name, data in all_sheets_data.items():
+# Helper to update a sheet
+def update_sheet(sheet_name, header, rows, note, source_url):
     ws = sh.worksheet(sheet_name)
-    ws.clear()                 # clear all old data in the worksheet first&#8203;:contentReference[oaicite:6]{index=6}
-    ws.update('A1', data)      # write the full dataset starting at cell A1 in one call&#8203;:contentReference[oaicite:7]{index=7}
+    ws.clear()
+    data = [header] + rows
+    ws.update("A1", data)
+    log_update(
+        tab_name=sheet_name,
+        row_count=len(rows),
+        update_type="full_overwrite",
+        note=note,
+        source_url=source_url
+    )
+
+# Egg Prices
+egg_url = f"https://api.stlouisfed.org/fred/series/observations?series_id=APU0000708111&observation_start={START_DATE}&api_key={FRED_API_KEY}&file_type=json"
+egg_obs = requests.get(egg_url).json().get("observations", [])
+egg_rows = [[obs["date"], float(obs["value"])] for obs in egg_obs if obs["value"] not in [".", ""]]
+egg_rows.sort(key=lambda x: x[0])
+update_sheet("Egg_Prices", ["Date", "Price (USD per dozen)"], egg_rows,
+             "FRED data refreshed from Jan 2021", "https://fred.stlouisfed.org/series/APU0000708111")
+
+# Gas Prices
+eia_url = f"https://api.eia.gov/series/?api_key={EIA_API_KEY}&series_id=PET.EMM_EPMR_PTE_NUS_DPG.W&start={START_DATE}&end={END_DATE}"
+gas_series = requests.get(eia_url).json().get("series", [{}])[0].get("data", [])
+gas_rows = []
+for date_str, value in gas_series:
+    if len(date_str) == 8:
+        formatted_date = f"{date_str[:4]}-{date_str[4:6]}-{date_str[6:8]}"
+    else:
+        formatted_date = date_str
+    if value not in ["", ".", "null", "w", "*"]:
+        gas_rows.append([formatted_date, float(value)])
+gas_rows.sort(key=lambda x: x[0])
+update_sheet("Gas_Prices", ["Date", "Price (USD per gallon)"], gas_rows,
+             "EIA data refreshed from Jan 2021", "https://www.eia.gov/dnav/pet/pet_pri_gnd_dcus_nus_w.htm")
+
+# Interest Rates
+rate_url = f"https://api.stlouisfed.org/fred/series/observations?series_id=DGS10&observation_start={START_DATE}&api_key={FRED_API_KEY}&file_type=json"
+rate_obs = requests.get(rate_url).json().get("observations", [])
+rate_rows = [[obs["date"], float(obs["value"])] for obs in rate_obs if obs["value"] not in [".", ""]]
+rate_rows.sort(key=lambda x: x[0])
+update_sheet("Interest_Rates", ["Date", "10-Year Treasury Rate (%)"], rate_rows,
+             "FRED interest rate data refreshed from Jan 2021", "https://fred.stlouisfed.org/series/DGS10")
+
+# Stock Market
+stock_url = f"https://api.stlouisfed.org/fred/series/observations?series_id=SP500&observation_start={START_DATE}&api_key={FRED_API_KEY}&file_type=json"
+stock_obs = requests.get(stock_url).json().get("observations", [])
+stock_rows = [[obs["date"], float(obs["value"])] for obs in stock_obs if obs["value"] not in [".", ""]]
+stock_rows.sort(key=lambda x: x[0])
+update_sheet("Stock_Market", ["Date", "S&P 500 Index"], stock_rows,
+             "FRED S&P 500 data refreshed from Jan 2021", "https://fred.stlouisfed.org/series/SP500")

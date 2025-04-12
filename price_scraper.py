@@ -6,6 +6,7 @@ from datetime import datetime
 from bs4 import BeautifulSoup
 import gspread
 from google.oauth2.service_account import Credentials
+from log_update_notes import log_update
 
 # Google Sheets authentication using GitHub Secrets
 scopes = [
@@ -58,9 +59,23 @@ def main():
     iphone_price = get_current_iphone_price()
     if iphone_price:
         update_price_sheet("iPhone_Prices", iphone_price)
+        log_update(
+            tab_name="iPhone_Prices",
+            row_count=1,
+            update_type="price_scrape",
+            note="Rolled forward or updated base model price",
+            source_url="https://www.apple.com/shop/buy-iphone/iphone-15"
+        )
 
     rav4_price = get_current_rav4_price()
     if rav4_price:
         update_price_sheet("Car_Prices", rav4_price)
+        log_update(
+            tab_name="Car_Prices",
+            row_count=1,
+            update_type="price_scrape",
+            note="Rolled forward or updated Toyota RAV4 MSRP",
+            source_url="https://www.edmunds.com/toyota/rav4/2024/xle/"
+        )
 
 main()
