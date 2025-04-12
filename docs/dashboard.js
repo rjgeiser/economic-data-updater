@@ -47,10 +47,10 @@ function renderChart(data) {
 
   const el = document.createElement("div");
   el.className = "p-4";
-  el.innerHTML = \`
+  el.innerHTML = \``
     <h1 class="text-2xl font-semibold mb-4">📊 Economic Data Overview</h1>
     <canvas id="chartCanvas" height="400"></canvas>
-  \`;
+  \``;
   container.appendChild(el);
 
   const ctx = document.getElementById("chartCanvas").getContext("2d");
