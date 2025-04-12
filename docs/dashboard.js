@@ -1,13 +1,13 @@
 
 console.log("🚧 dashboard.js loaded");
 
-const SHEET_BASE = "https://docs.google.com/spreadsheets/d/e/2PACX-1vST6GB3NYi4TQFCB-tF46TXuqHoX5KTd1jjgcO4i2o8CMlu-M9fUC9ZqvvsxynK2eOl0ZJ8cD8pLBt_/pub?output=csv&gid=";
+const SHEET_BASE = "https://docs.google.com/spreadsheets/d/12_lLnv3t7Om8XHRwFA7spCJ8at282WE7hisxu23gITo/gviz/tq?tqx=out:csv&sheet=";
 
 const tabs = {
-  Eggs: "0",
-  Gas: "1376176610",
-  iPhone: "372313849",
-  RAV4: "509103836"
+  Eggs: "Egg_Prices",
+  Gas: "Gas_Prices",
+  iPhone: "iPhone_Prices",
+  RAV4: "Car_Prices"
 };
 
 function parseCSV(text) {
