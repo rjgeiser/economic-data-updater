@@ -2,15 +2,17 @@
 name: Price Scraper
 
 on:
-  workflow_dispatch:  # allows manual trigger
+  workflow_dispatch:
   schedule:
-    - cron: "0 6 * * *"  # runs daily at 6:00 UTC
+    - cron: "0 6 * * *"  # Runs daily at 6:00 UTC
 
 jobs:
   scrape-prices:
     runs-on: ubuntu-latest
     env:
       GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
+      GOOGLE_SHEET_ID: ${{ secrets.GOOGLE_SHEET_ID }}
+
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
@@ -22,9 +24,6 @@ jobs:
 
       - name: Install dependencies
         run: pip install gspread google-auth requests beautifulsoup4
-
-      - name: Write credentials file
-        run: echo "$GOOGLE_CREDENTIALS" > service_account.json
 
       - name: Run price scraper
         run: python price_scraper.py
