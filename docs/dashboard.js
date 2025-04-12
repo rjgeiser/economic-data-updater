@@ -13,7 +13,7 @@ loadScript("https://cdn.jsdelivr.net/npm/tabletop@1.6.0/tabletop.min.js", () => 
     callback: (data) => {
       console.log("✅ Tabletop loaded!");
       console.log("🗂 Available tabs:", Object.keys(data));
-    }
+
       const parseSheet = (name) =>
         data[name].elements.map((row) => ({
           date: row.Date,
