@@ -46,18 +46,18 @@ egg_rows.sort(key=lambda x: x[0])
 update_sheet("Egg_Prices", ["Date", "Price (USD per dozen)"], egg_rows,
              "FRED data refreshed from Jan 2021", "https://fred.stlouisfed.org/series/APU0000708111")
 
-def fetch_eia_gas_v2(api_key, start_date, end_date):
+def fetch_eia_gas_v2(api_key):
     base_url = "https://api.eia.gov/v2/petroleum/pri/gnd/data/"
     params = {
         "frequency": "weekly",
         "data[0]": "value",
         "facets[series][]": "EMM_EPMR_PTE_NUS_DPG",
-        "start": start_date.replace("-", ""),
-        "end": end_date.replace("-", ""),
+        "start": "20210101",
+        "end": "20211231",
         "sort[0][column]": "period",
         "sort[0][direction]": "asc",
         "offset": 0,
-        "length": 1000,
+        "length": 100,
         "api_key": api_key
     }
 
