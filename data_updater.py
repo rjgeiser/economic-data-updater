@@ -64,6 +64,7 @@ eia_url = f"https://api.eia.gov/series/?api_key={EIA_API_KEY}&series_id=PET.EMM_
 
 try:
     eia_json = fetch_eia_data_with_retry(eia_url)
+    print("✅ Fetched EIA data. Top-level keys:", list(eia_json.keys()))
     gas_series = eia_json.get("series", [{}])[0].get("data", [])
     gas_data = []
 
@@ -82,10 +83,7 @@ try:
                  "https://www.eia.gov/dnav/pet/pet_pri_gnd_dcus_nus_w.htm")
 
 except Exception as e:
-    print("Failed to load or process gas prices after retries:", str(e))
-
-except Exception as e:
-    print("Failed to load or process gas prices:", str(e))
+    print("❌ Final error after retries:", str(e))
 
 # Interest Rates
 rate_url = f"https://api.stlouisfed.org/fred/series/observations?series_id=DGS10&observation_start={START_DATE}&api_key={FRED_API_KEY}&file_type=json"
