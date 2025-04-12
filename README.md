@@ -1,59 +1,53 @@
-# Economic Data Updater
 
-This project automates the retrieval and daily updating of key U.S. economic indicators and product prices to a centralized Google Sheet. The data includes:
+# 🧮 Economic Data Updater
 
-- 🥚 Average price of eggs (FRED/BLS)
-- ⛽ Regular gasoline prices (EIA)
-- 📈 S&P 500 Index (FRED)
-- 💵 10-Year Treasury Yield (FRED)
-- 📱 iPhone base model price (scraped from Apple)
-- 🚗 Toyota RAV4 XLE MSRP (scraped from Edmunds)
-- 🗂️ Automatically generated metadata for transparency
+This project automates the collection and logging of economic and public policy data into a central Google Sheet for visualization and analysis.
 
-## Project Structure
+## 📊 Data Collected
 
-```
-.
-├── data_updater.py         # Updates FRED & EIA data (Eggs, Gas, Interest, Stock)
-├── price_scraper.py        # Scrapes iPhone and RAV4 prices daily
-├── add_metadata_tab.py     # Creates or updates a Metadata sheet with source info
-├── .github
-│   └── workflows
-│       ├── update.yml            # Runs full data updater daily
-│       ├── price-scraper.yml     # Runs price scraper daily
-│       └── update-metadata.yml   # Runs metadata refresher monthly
-├── requirements.txt
-└── README.md
-```
+| Sheet Name       | Description                                                | Source            |
+|------------------|------------------------------------------------------------|-------------------|
+| Egg_Prices       | Avg. price of Grade A large eggs (U.S. city avg)           | FRED/BLS          |
+| Gas_Prices       | Regular gasoline price, all formulations (U.S. avg)        | FRED/EIA          |
+| Interest_Rates   | 10-Year Treasury constant maturity rate                    | FRED              |
+| Stock_Market     | S&P 500 Index daily close                                  | FRED              |
+| iPhone_Prices    | MSRP of base model iPhone (128GB)                          | Apple.com         |
+| Car_Prices       | MSRP of Toyota RAV4 XLE by model year                      | Toyota Pressroom  |
+| Policy_Events    | Proposed federal rules from 10 major U.S. agencies         | Federal Register  |
 
-## Setup Instructions
+## 🔁 Automation
 
-1. **Google Cloud Setup**
-   - Create a service account and download the JSON credentials file.
-   - Share your Google Sheet with the service account email (Editor access).
-   - Set the `GOOGLE_CREDENTIALS` as a GitHub Secret (paste the full JSON content).
-   - Set `GOOGLE_SHEET_ID` as another secret (from your sheet's URL).
+This project uses GitHub Actions to automatically update data and metadata:
 
-2. **GitHub Actions Setup**
-   - Upload all files to your repository.
-   - Workflows will trigger based on schedule or manual invocation from the Actions tab.
+- **Daily**:
+  - FRED and EIA economic data
+  - Public policy (`PRORULE`) tracking
+  - Price scraping and rollover logic
+- **Monthly**:
+  - Metadata verification and maintenance
 
-3. **Manual Script Testing (Optional)**
-   Run locally using:
-   ```bash
-   pip install gspread google-auth requests beautifulsoup4
-   python data_updater.py
-   python price_scraper.py
-   ```
+## 📁 Files & Structure
 
-## Sheet Metadata
+| File                          | Description                                         |
+|-------------------------------|-----------------------------------------------------|
+| `data_updater.py`            | Updates FRED + EIA data                             |
+| `price_scraper.py`           | Scrapes Apple and Toyota prices                    |
+| `policy_tracker.py`          | Appends daily policy events from selected agencies |
+| `update_metadata_entries.py` | Maintains metadata entries for new sheets          |
+| `.github/workflows/`         | Contains all scheduled GitHub Actions workflows    |
 
-All tabs are explained in a dedicated `Metadata` sheet within the workbook, including:
-- Source links
-- Units of measurement
-- Series ID
-- Data provider
+## 🛠 Setup
 
-## Contact
+1. Share your Google Sheet with your service account email.
+2. Add these GitHub Secrets:
+   - `GOOGLE_CREDENTIALS` — your service account JSON (stringified)
+   - `GOOGLE_SHEET_ID` — your Google Sheet ID
+3. Adjust API keys inside `data_updater.py` if needed.
 
-Maintained by Roy Geiser (rjgeiser). For questions or contributions, please open an issue or reach out directly.
+## 🌐 Visualization (in progress)
+
+This repository will soon integrate with a GitHub Pages frontend to visualize data and annotate economic/policy trends over time.
+
+---
+
+Maintained by [@rjgeiser](https://github.com/rjgeiser) — questions welcome.
