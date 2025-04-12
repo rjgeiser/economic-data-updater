@@ -45,20 +45,28 @@ egg_rows.sort(key=lambda x: x[0])
 update_sheet("Egg_Prices", ["Date", "Price (USD per dozen)"], egg_rows,
              "FRED data refreshed from Jan 2021", "https://fred.stlouisfed.org/series/APU0000708111")
 
-# Gas Prices
+# Gas Prices (from EIA)
 eia_url = f"https://api.eia.gov/series/?api_key={EIA_API_KEY}&series_id=PET.EMM_EPMR_PTE_NUS_DPG.W&start={START_DATE}&end={END_DATE}"
-gas_series = requests.get(eia_url).json().get("series", [{}])[0].get("data", [])
-gas_rows = []
-for date_str, value in gas_series:
-    if len(date_str) == 8:
-        formatted_date = f"{date_str[:4]}-{date_str[4:6]}-{date_str[6:8]}"
-    else:
-        formatted_date = date_str
-    if value not in ["", ".", "null", "w", "*"]:
-        gas_rows.append([formatted_date, float(value)])
-gas_rows.sort(key=lambda x: x[0])
-update_sheet("Gas_Prices", ["Date", "Price (USD per gallon)"], gas_rows,
-             "EIA data refreshed from Jan 2021", "https://www.eia.gov/dnav/pet/pet_pri_gnd_dcus_nus_w.htm")
+response = requests.get(eia_url)
+gas_data = []
+
+try:
+    gas_series = response.json().get("series", [{}])[0].get("data", [])
+    for date_str, value in gas_series:
+        if len(date_str) == 8:
+            formatted_date = f"{date_str[:4]}-{date_str[4:6]}-{date_str[6:8]}"
+        else:
+            formatted_date = date_str
+        if value not in ["", ".", "null", "w", "*"]:
+            gas_data.append([formatted_date, float(value)])
+    gas_data.sort(key=lambda x: x[0])
+
+    update_sheet("Gas_Prices", ["Date", "Price (USD per gallon)"], gas_data,
+                 "EIA gas price data refreshed from Jan 2021",
+                 "https://www.eia.gov/dnav/pet/pet_pri_gnd_dcus_nus_w.htm")
+
+except Exception as e:
+    print("Failed to load or process gas prices:", str(e))
 
 # Interest Rates
 rate_url = f"https://api.stlouisfed.org/fred/series/observations?series_id=DGS10&observation_start={START_DATE}&api_key={FRED_API_KEY}&file_type=json"
