@@ -1,18 +1,23 @@
 
+import os
+import json
 import requests
 from datetime import datetime
+from bs4 import BeautifulSoup
 import gspread
 from google.oauth2.service_account import Credentials
-from bs4 import BeautifulSoup
 
-# Setup Google Sheets access
+# Google Sheets authentication using GitHub Secrets
 scopes = [
     "https://www.googleapis.com/auth/spreadsheets",
     "https://www.googleapis.com/auth/drive"
 ]
-credentials = Credentials.from_service_account_file("service_account.json", scopes=scopes)
+creds_dict = json.loads(os.environ["GOOGLE_CREDENTIALS"])
+credentials = Credentials.from_service_account_info(creds_dict, scopes=scopes)
 gc = gspread.authorize(credentials)
-sheet = gc.open("EconomicData")  # Replace with your sheet name or use open_by_key
+
+# Open the Google Sheet using its unique ID
+sheet = gc.open_by_key(os.environ["GOOGLE_SHEET_ID"])
 
 def get_current_iphone_price():
     url = "https://www.apple.com/shop/buy-iphone/iphone-15"
