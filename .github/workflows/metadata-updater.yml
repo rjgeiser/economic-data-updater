@@ -1,0 +1,32 @@
+
+name: Monthly Metadata Update
+
+on:
+  schedule:
+    - cron: "0 5 1 * *"  # Run at 05:00 UTC on the 1st of every month
+  workflow_dispatch:  # Allow manual trigger
+
+jobs:
+  update-metadata:
+    runs-on: ubuntu-latest
+    env:
+      GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
+      GOOGLE_SHEET_ID: ${{ secrets.GOOGLE_SHEET_ID }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Install dependencies
+        run: pip install gspread google-auth
+
+      - name: Write credentials to file
+        run: echo "$GOOGLE_CREDENTIALS" > credentials.json
+
+      - name: Run metadata updater
+        run: python update_metadata_entries.py
