@@ -57,7 +57,7 @@ def fetch_eia_gas_v2(api_key, start_date, end_date):
         "sort[0][column]": "period",
         "sort[0][direction]": "asc",
         "offset": 0,
-        "length": 5000,
+        "length": 1000,
         "api_key": api_key
     }
 
