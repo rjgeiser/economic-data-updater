@@ -46,44 +46,44 @@ egg_rows.sort(key=lambda x: x[0])
 update_sheet("Egg_Prices", ["Date", "Price (USD per dozen)"], egg_rows,
              "FRED data refreshed from Jan 2021", "https://fred.stlouisfed.org/series/APU0000708111")
 
-def fetch_eia_data_with_retry(url, retries=3, delay=3):
-    for attempt in range(1, retries + 1):
-        try:
-            response = requests.get(url, timeout=10)
-            response.raise_for_status()
-            return response.json()
-        except requests.exceptions.RequestException as e:
-            print(f"Attempt {attempt} failed: {e}")
-            if attempt < retries:
-                time.sleep(delay * attempt)
-            else:
-                raise
+def fetch_eia_gas_v2(api_key, start_date, end_date):
+    base_url = "https://api.eia.gov/v2/petroleum/pri/gnd/data/"
+    params = {
+        "frequency": "weekly",
+        "data[0]": "value",
+        "facets[series][]": "EMM_EPMR_PTE_NUS_DPG",
+        "start": start_date.replace("-", ""),
+        "end": end_date.replace("-", ""),
+        "sort[0][column]": "period",
+        "sort[0][direction]": "asc",
+        "offset": 0,
+        "length": 5000,
+        "api_key": api_key
+    }
 
-# Gas Prices (with retry)
-eia_url = f"https://api.eia.gov/series/?api_key={EIA_API_KEY}&series_id=PET.RWTC.D&start={START_DATE.replace('-', '')}&end={END_DATE.replace('-', '')}"
+    try:
+        response = requests.get(base_url, params=params)
+        response.raise_for_status()
+        return response.json()["response"]["data"]
+    except Exception as e:
+        print("❌ Failed to fetch EIA v2 gas data:", str(e))
+        return []
 
-try:
-    eia_json = fetch_eia_data_with_retry(eia_url)
-    print("✅ Fetched EIA data. Top-level keys:", list(eia_json.keys()))
-    gas_series = eia_json.get("series", [{}])[0].get("data", [])
-    gas_data = []
+# Fetch and parse gas prices using v2 API
+gas_v2_data = fetch_eia_gas_v2(EIA_API_KEY, START_DATE, END_DATE)
+gas_rows = []
 
-    for date_str, value in gas_series:
-        if len(date_str) == 8:
-            formatted_date = f"{date_str[:4]}-{date_str[4:6]}-{date_str[6:8]}"
-        else:
-            formatted_date = date_str
-        if value not in ["", ".", "null", "w", "*"]:
-            gas_data.append([formatted_date, float(value)])
+for entry in gas_v2_data:
+    date = entry.get("period")
+    value = entry.get("value")
+    if date and isinstance(value, (float, int)):
+        gas_rows.append([date, float(value)])
 
-    gas_data.sort(key=lambda x: x[0])
+gas_rows.sort(key=lambda x: x[0])
 
-    update_sheet("Gas_Prices", ["Date", "Price (USD per gallon)"], gas_data,
-                 "EIA gas price data refreshed from Jan 2021",
-                 "https://www.eia.gov/dnav/pet/pet_pri_gnd_dcus_nus_w.htm")
-
-except Exception as e:
-    print("❌ Final error after retries:", str(e))
+update_sheet("Gas_Prices", ["Date", "Price (USD per gallon)"], gas_rows,
+             "EIA v2 gas price data refreshed from Jan 2021",
+             "https://www.eia.gov/petroleum/gasdiesel/")
 
 # Interest Rates
 rate_url = f"https://api.stlouisfed.org/fred/series/observations?series_id=DGS10&observation_start={START_DATE}&api_key={FRED_API_KEY}&file_type=json"
