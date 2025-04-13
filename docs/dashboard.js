@@ -1,105 +1,117 @@
+console.log("🚀 dashboard.js loaded");
 
-console.log("🚧 dashboard.js loaded");
-
-const SHEET_BASE = "https://docs.google.com/spreadsheets/d/12_lLnv3t7Om8XHRwFA7spCJ8at282WE7hisxu23gITo/gviz/tq?tqx=out:csv&sheet=";
-
-const tabs = {
+const dataSources = {
   Eggs: "https://docs.google.com/spreadsheets/d/e/2PACX-1vST6GB3NYi4TQFCB-tF46TXuqHoX5KTd1jjgcO4i2o8CMlu-M9fUC9ZqvvsxynK2eOl0ZJ8cD8pLBt_/pub?gid=0&single=true&output=csv",
-  Gas: "https://docs.google.com/spreadsheets/d/e/2PACX-1vST6GB3NYi4TQFCB-tF46TXuqHoX5KTd1jjgcO4i2o8CMlu-M9fUC9ZqvvsxynK2eOl0ZJ8cD8pLBt_/pub?gid=1278580731&single=true&output=csv",
-  iPhone: "https://docs.google.com/spreadsheets/d/e/2PACX-1vST6GB3NYi4TQFCB-tF46TXuqHoX5KTd1jjgcO4i2o8CMlu-M9fUC9ZqvvsxynK2eOl0ZJ8cD8pLBt_/pub?gid=287034430&single=true&output=csv",
-  RAV4: "https://docs.google.com/spreadsheets/d/e/2PACX-1vST6GB3NYi4TQFCB-tF46TXuqHoX5KTd1jjgcO4i2o8CMlu-M9fUC9ZqvvsxynK2eOl0ZJ8cD8pLBt_/pub?gid=967900642&single=true&output=csv"
+  Gas: "https://docs.google.com/spreadsheets/d/e/2PACX-1vST6GB3NYi4TQFCB-tF46TXuqHoX5KTd1jjgcO4i2o8CMlu-M9fUC9ZqvvsxynK2eOl0ZJ8cD8pLBt_/pub?gid=1376176610&single=true&output=csv",
+  iPhone: "https://docs.google.com/spreadsheets/d/e/2PACX-1vST6GB3NYi4TQFCB-tF46TXuqHoX5KTd1jjgcO4i2o8CMlu-M9fUC9ZqvvsxynK2eOl0ZJ8cD8pLBt_/pub?gid=372313849&single=true&output=csv",
+  RAV4: "https://docs.google.com/spreadsheets/d/e/2PACX-1vST6GB3NYi4TQFCB-tF46TXuqHoX5KTd1jjgcO4i2o8CMlu-M9fUC9ZqvvsxynK2eOl0ZJ8cD8pLBt_/pub?gid=509103836&single=true&output=csv",
+  Rates: "https://docs.google.com/spreadsheets/d/e/2PACX-1vST6GB3NYi4TQFCB-tF46TXuqHoX5KTd1jjgcO4i2o8CMlu-M9fUC9ZqvvsxynK2eOl0ZJ8cD8pLBt_/pub?gid=388261679&single=true&output=csv",
+  Market: "https://docs.google.com/spreadsheets/d/e/2PACX-1vST6GB3NYi4TQFCB-tF46TXuqHoX5KTd1jjgcO4i2o8CMlu-M9fUC9ZqvvsxynK2eOl0ZJ8cD8pLBt_/pub?gid=482309404&single=true&output=csv",
+  Events: "https://docs.google.com/spreadsheets/d/e/2PACX-1vST6GB3NYi4TQFCB-tF46TXuqHoX5KTd1jjgcO4i2o8CMlu-M9fUC9ZqvvsxynK2eOl0ZJ8cD8pLBt_/pub?gid=1572154206&single=true&output=csv"
 };
 
 function parseCSV(text) {
-  const [headerLine, ...lines] = text.trim().split("\n");
-  const headers = headerLine.split(",").map(h => h.trim().replace(/\r/, ""));
+  const [header, ...lines] = text.trim().split("\n");
+  const headers = header.split(",").map(h => h.trim().replace(/\r/g, ""));
   return lines.map(line => {
-    const cells = line.split(",");
     const row = {};
-    headers.forEach((h, i) => {
-      row[h] = cells[i] ? cells[i].trim() : "";
+    line.split(",").forEach((cell, i) => {
+      row[headers[i]] = cell.trim();
     });
     return row;
   });
 }
 
-async function fetchAndBuildChart() {
-  const allData = {};
-
-  for (const [label, url] of Object.entries(tabs)) {
-    const res = await fetch(url);
-    const text = await res.text();
-    const parsed = parseCSV(text);
-
-    parsed.forEach(row => {
-      const date = row.Date;
-      const price = parseFloat(row["Price (USD)"] || row["Price (USD per gallon)"] || "0");
-      if (!allData[date]) allData[date] = { date };
-      allData[date][label] = price;
-    });
-  }
-
-  const merged = Object.values(allData).sort((a, b) => new Date(a.date) - new Date(b.date));
-  renderChart(merged);
+function parseValue(val) {
+  return isNaN(parseFloat(val)) ? null : parseFloat(val);
 }
 
-function renderChart(data) {
+async function fetchData() {
+  const merged = {};
+  const annotations = [];
+
+  for (const [label, url] of Object.entries(dataSources)) {
+    const res = await fetch(url);
+    const text = await res.text();
+    const rows = parseCSV(text);
+
+    if (label === "Events") {
+      rows.forEach(event => {
+        if (event.Date && event.Title) {
+          annotations.push({
+            type: "line",
+            mode: "vertical",
+            scaleID: "x",
+            value: event.Date,
+            borderColor: "gray",
+            borderWidth: 1,
+            label: {
+              content: event.Title,
+              enabled: true,
+              rotation: 90
+            }
+          });
+        }
+      });
+    } else {
+      rows.forEach(row => {
+        const date = row.Date;
+        const value = parseValue(
+          row["Price (USD)"] || row["Price (USD per gallon)"] || row["Rate (%)"] || row["Close"]
+        );
+        if (!merged[date]) merged[date] = { date };
+        merged[date][label] = value;
+      });
+    }
+  }
+
+  const data = Object.values(merged).sort((a, b) => new Date(a.date) - new Date(b.date));
+  renderChart(data, annotations);
+}
+
+function renderChart(data, annotations) {
   const container = document.getElementById("root");
   container.innerHTML = `
     <div class="p-4">
-      <h1 class="text-2xl font-semibold mb-4">📊 Economic Data Overview</h1>
+      <h1 class="text-2xl font-semibold mb-4">📊 Economic Dashboard with Policy Events</h1>
       <canvas id="chartCanvas" height="400"></canvas>
     </div>
   `;
 
   const ctx = document.getElementById("chartCanvas").getContext("2d");
+  const labels = data.map(d => d.date);
+  const keys = ["Eggs", "Gas", "iPhone", "RAV4", "Rates", "Market"];
+  const colors = ["#f87171", "#60a5fa", "#34d399", "#fbbf24", "#a78bfa", "#f472b6"];
 
-  const labels = data.map((d) => d.date);
-  const datasets = ["Eggs", "Gas", "iPhone", "RAV4"].map((key, i) => ({
+  const datasets = keys.map((key, i) => ({
     label: key,
-    data: data.map((d) => d[key] || null),
-    borderColor: ["#f87171", "#60a5fa", "#34d399", "#fbbf24"][i],
+    data: data.map(d => d[key] ?? null),
+    borderColor: colors[i],
     fill: false,
     tension: 0.3
   }));
 
   new Chart(ctx, {
     type: "line",
-    data: {
-      labels,
-      datasets
-    },
+    data: { labels, datasets },
     options: {
       responsive: true,
-      interaction: {
-        mode: "index",
-        intersect: false
-      },
+      interaction: { mode: "index", intersect: false },
       plugins: {
-        legend: {
-          position: "top"
-        },
+        legend: { position: "top" },
         title: {
           display: true,
-          text: "Prices and Economic Data Over Time"
-        }
+          text: "Price, Market, and Rate Trends with Policy Events"
+        },
+        annotation: { annotations }
       },
       scales: {
-        x: {
-          title: {
-            display: true,
-            text: "Date"
-          }
-        },
-        y: {
-          title: {
-            display: true,
-            text: "Value (USD)"
-          }
-        }
+        x: { title: { display: true, text: "Date" } },
+        y: { title: { display: true, text: "Value" } }
       }
-    }
+    },
+    plugins: [Chart.registry.getPlugin("annotation")]
   });
 }
 
-fetchAndBuildChart();
+fetchData();
