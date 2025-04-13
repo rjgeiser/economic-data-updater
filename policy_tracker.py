@@ -9,7 +9,7 @@ scopes = [
     "https://www.googleapis.com/auth/spreadsheets",
     "https://www.googleapis.com/auth/drive"
 ]
-credentials = Credentials.from_service_account_file("credentials.json", scopes=scopes)
+credentials = Credentials.from_service_account_file("servive_account.json", scopes=scopes)
 gc = gspread.authorize(credentials)
 sheet = gc.open_by_key("12_lLnv3t7Om8XHRwFA7spCJ8at282WE7hisxu23gITo")
 
