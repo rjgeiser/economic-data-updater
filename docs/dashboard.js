@@ -4,10 +4,10 @@ console.log("🚧 dashboard.js loaded");
 const SHEET_BASE = "https://docs.google.com/spreadsheets/d/12_lLnv3t7Om8XHRwFA7spCJ8at282WE7hisxu23gITo/gviz/tq?tqx=out:csv&sheet=";
 
 const tabs = {
-  Eggs: "Egg_Prices",
-  Gas: "Gas_Prices",
-  iPhone: "iPhone_Prices",
-  RAV4: "Car_Prices"
+  Eggs: "https://docs.google.com/spreadsheets/d/e/2PACX-1vST6GB3NYi4TQFCB-tF46TXuqHoX5KTd1jjgcO4i2o8CMlu-M9fUC9ZqvvsxynK2eOl0ZJ8cD8pLBt_/pub?gid=0&single=true&output=csv",
+  Gas: "https://docs.google.com/spreadsheets/d/e/2PACX-1vST6GB3NYi4TQFCB-tF46TXuqHoX5KTd1jjgcO4i2o8CMlu-M9fUC9ZqvvsxynK2eOl0ZJ8cD8pLBt_/pub?gid=1278580731&single=true&output=csv",
+  iPhone: "https://docs.google.com/spreadsheets/d/e/2PACX-1vST6GB3NYi4TQFCB-tF46TXuqHoX5KTd1jjgcO4i2o8CMlu-M9fUC9ZqvvsxynK2eOl0ZJ8cD8pLBt_/pub?gid=287034430&single=true&output=csv",
+  RAV4: "https://docs.google.com/spreadsheets/d/e/2PACX-1vST6GB3NYi4TQFCB-tF46TXuqHoX5KTd1jjgcO4i2o8CMlu-M9fUC9ZqvvsxynK2eOl0ZJ8cD8pLBt_/pub?gid=967900642&single=true&output=csv"
 };
 
 function parseCSV(text) {
@@ -26,8 +26,8 @@ function parseCSV(text) {
 async function fetchAndBuildChart() {
   const allData = {};
 
-  for (const [label, gid] of Object.entries(tabs)) {
-    const res = await fetch(SHEET_BASE + gid);
+  for (const [label, url] of Object.entries(tabs)) {
+    const res = await fetch(url);
     const text = await res.text();
     const parsed = parseCSV(text);
 
