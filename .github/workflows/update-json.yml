@@ -1,0 +1,39 @@
+
+name: Update JSON Snapshots
+
+on:
+  schedule:
+    - cron: "0 5 * * *"  # Runs daily at 5:00 UTC
+  workflow_dispatch:  # Allows manual trigger
+
+jobs:
+  export-json:
+    runs-on: ubuntu-latest
+    env:
+      GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
+      GOOGLE_SHEET_ID: ${{ secrets.GOOGLE_SHEET_ID }}
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.9"
+
+      - name: Install dependencies
+        run: pip install gspread google-auth
+
+      - name: Write credentials file
+        run: echo "$GOOGLE_CREDENTIALS" > service_account.json
+
+      - name: Run JSON export script
+        run: python snapshot_to_json.py
+
+      - name: Commit JSON files
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add docs/data/*.json
+          git commit -m "🔄 Update JSON data snapshots" || echo "No changes to commit"
+          git push
