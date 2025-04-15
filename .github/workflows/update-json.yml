@@ -4,7 +4,7 @@ name: Update JSON Snapshots
 on:
   schedule:
     - cron: "0 5 * * *"  # Runs daily at 5:00 UTC
-  workflow_dispatch:  # Allows manual trigger
+  workflow_dispatch:
 
 jobs:
   export-json:
