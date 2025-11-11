@@ -4518,5 +4518,341 @@
   {
     "Date": "2025-07-10",
     "10-Year Treasury Rate (%)": 4.35
+  },
+  {
+    "Date": "2025-07-11",
+    "10-Year Treasury Rate (%)": 4.43
+  },
+  {
+    "Date": "2025-07-14",
+    "10-Year Treasury Rate (%)": 4.43
+  },
+  {
+    "Date": "2025-07-15",
+    "10-Year Treasury Rate (%)": 4.5
+  },
+  {
+    "Date": "2025-07-16",
+    "10-Year Treasury Rate (%)": 4.46
+  },
+  {
+    "Date": "2025-07-17",
+    "10-Year Treasury Rate (%)": 4.47
+  },
+  {
+    "Date": "2025-07-18",
+    "10-Year Treasury Rate (%)": 4.44
+  },
+  {
+    "Date": "2025-07-21",
+    "10-Year Treasury Rate (%)": 4.38
+  },
+  {
+    "Date": "2025-07-22",
+    "10-Year Treasury Rate (%)": 4.35
+  },
+  {
+    "Date": "2025-07-23",
+    "10-Year Treasury Rate (%)": 4.4
+  },
+  {
+    "Date": "2025-07-24",
+    "10-Year Treasury Rate (%)": 4.43
+  },
+  {
+    "Date": "2025-07-25",
+    "10-Year Treasury Rate (%)": 4.4
+  },
+  {
+    "Date": "2025-07-28",
+    "10-Year Treasury Rate (%)": 4.42
+  },
+  {
+    "Date": "2025-07-29",
+    "10-Year Treasury Rate (%)": 4.34
+  },
+  {
+    "Date": "2025-07-30",
+    "10-Year Treasury Rate (%)": 4.38
+  },
+  {
+    "Date": "2025-07-31",
+    "10-Year Treasury Rate (%)": 4.37
+  },
+  {
+    "Date": "2025-08-01",
+    "10-Year Treasury Rate (%)": 4.23
+  },
+  {
+    "Date": "2025-08-04",
+    "10-Year Treasury Rate (%)": 4.22
+  },
+  {
+    "Date": "2025-08-05",
+    "10-Year Treasury Rate (%)": 4.22
+  },
+  {
+    "Date": "2025-08-06",
+    "10-Year Treasury Rate (%)": 4.22
+  },
+  {
+    "Date": "2025-08-07",
+    "10-Year Treasury Rate (%)": 4.23
+  },
+  {
+    "Date": "2025-08-08",
+    "10-Year Treasury Rate (%)": 4.27
+  },
+  {
+    "Date": "2025-08-11",
+    "10-Year Treasury Rate (%)": 4.27
+  },
+  {
+    "Date": "2025-08-12",
+    "10-Year Treasury Rate (%)": 4.29
+  },
+  {
+    "Date": "2025-08-13",
+    "10-Year Treasury Rate (%)": 4.24
+  },
+  {
+    "Date": "2025-08-14",
+    "10-Year Treasury Rate (%)": 4.29
+  },
+  {
+    "Date": "2025-08-15",
+    "10-Year Treasury Rate (%)": 4.33
+  },
+  {
+    "Date": "2025-08-18",
+    "10-Year Treasury Rate (%)": 4.34
+  },
+  {
+    "Date": "2025-08-19",
+    "10-Year Treasury Rate (%)": 4.3
+  },
+  {
+    "Date": "2025-08-20",
+    "10-Year Treasury Rate (%)": 4.29
+  },
+  {
+    "Date": "2025-08-21",
+    "10-Year Treasury Rate (%)": 4.33
+  },
+  {
+    "Date": "2025-08-22",
+    "10-Year Treasury Rate (%)": 4.26
+  },
+  {
+    "Date": "2025-08-25",
+    "10-Year Treasury Rate (%)": 4.28
+  },
+  {
+    "Date": "2025-08-26",
+    "10-Year Treasury Rate (%)": 4.26
+  },
+  {
+    "Date": "2025-08-27",
+    "10-Year Treasury Rate (%)": 4.24
+  },
+  {
+    "Date": "2025-08-28",
+    "10-Year Treasury Rate (%)": 4.22
+  },
+  {
+    "Date": "2025-08-29",
+    "10-Year Treasury Rate (%)": 4.23
+  },
+  {
+    "Date": "2025-09-02",
+    "10-Year Treasury Rate (%)": 4.28
+  },
+  {
+    "Date": "2025-09-03",
+    "10-Year Treasury Rate (%)": 4.22
+  },
+  {
+    "Date": "2025-09-04",
+    "10-Year Treasury Rate (%)": 4.17
+  },
+  {
+    "Date": "2025-09-05",
+    "10-Year Treasury Rate (%)": 4.1
+  },
+  {
+    "Date": "2025-09-08",
+    "10-Year Treasury Rate (%)": 4.05
+  },
+  {
+    "Date": "2025-09-09",
+    "10-Year Treasury Rate (%)": 4.08
+  },
+  {
+    "Date": "2025-09-10",
+    "10-Year Treasury Rate (%)": 4.04
+  },
+  {
+    "Date": "2025-09-11",
+    "10-Year Treasury Rate (%)": 4.01
+  },
+  {
+    "Date": "2025-09-12",
+    "10-Year Treasury Rate (%)": 4.06
+  },
+  {
+    "Date": "2025-09-15",
+    "10-Year Treasury Rate (%)": 4.05
+  },
+  {
+    "Date": "2025-09-16",
+    "10-Year Treasury Rate (%)": 4.04
+  },
+  {
+    "Date": "2025-09-17",
+    "10-Year Treasury Rate (%)": 4.06
+  },
+  {
+    "Date": "2025-09-18",
+    "10-Year Treasury Rate (%)": 4.11
+  },
+  {
+    "Date": "2025-09-19",
+    "10-Year Treasury Rate (%)": 4.14
+  },
+  {
+    "Date": "2025-09-22",
+    "10-Year Treasury Rate (%)": 4.15
+  },
+  {
+    "Date": "2025-09-23",
+    "10-Year Treasury Rate (%)": 4.12
+  },
+  {
+    "Date": "2025-09-24",
+    "10-Year Treasury Rate (%)": 4.16
+  },
+  {
+    "Date": "2025-09-25",
+    "10-Year Treasury Rate (%)": 4.18
+  },
+  {
+    "Date": "2025-09-26",
+    "10-Year Treasury Rate (%)": 4.2
+  },
+  {
+    "Date": "2025-09-29",
+    "10-Year Treasury Rate (%)": 4.15
+  },
+  {
+    "Date": "2025-09-30",
+    "10-Year Treasury Rate (%)": 4.16
+  },
+  {
+    "Date": "2025-10-01",
+    "10-Year Treasury Rate (%)": 4.12
+  },
+  {
+    "Date": "2025-10-02",
+    "10-Year Treasury Rate (%)": 4.1
+  },
+  {
+    "Date": "2025-10-03",
+    "10-Year Treasury Rate (%)": 4.13
+  },
+  {
+    "Date": "2025-10-06",
+    "10-Year Treasury Rate (%)": 4.18
+  },
+  {
+    "Date": "2025-10-07",
+    "10-Year Treasury Rate (%)": 4.14
+  },
+  {
+    "Date": "2025-10-08",
+    "10-Year Treasury Rate (%)": 4.13
+  },
+  {
+    "Date": "2025-10-09",
+    "10-Year Treasury Rate (%)": 4.14
+  },
+  {
+    "Date": "2025-10-10",
+    "10-Year Treasury Rate (%)": 4.05
+  },
+  {
+    "Date": "2025-10-14",
+    "10-Year Treasury Rate (%)": 4.03
+  },
+  {
+    "Date": "2025-10-15",
+    "10-Year Treasury Rate (%)": 4.05
+  },
+  {
+    "Date": "2025-10-16",
+    "10-Year Treasury Rate (%)": 3.99
+  },
+  {
+    "Date": "2025-10-17",
+    "10-Year Treasury Rate (%)": 4.02
+  },
+  {
+    "Date": "2025-10-20",
+    "10-Year Treasury Rate (%)": 4
+  },
+  {
+    "Date": "2025-10-21",
+    "10-Year Treasury Rate (%)": 3.98
+  },
+  {
+    "Date": "2025-10-22",
+    "10-Year Treasury Rate (%)": 3.97
+  },
+  {
+    "Date": "2025-10-23",
+    "10-Year Treasury Rate (%)": 4.01
+  },
+  {
+    "Date": "2025-10-24",
+    "10-Year Treasury Rate (%)": 4.02
+  },
+  {
+    "Date": "2025-10-27",
+    "10-Year Treasury Rate (%)": 4.01
+  },
+  {
+    "Date": "2025-10-28",
+    "10-Year Treasury Rate (%)": 3.99
+  },
+  {
+    "Date": "2025-10-29",
+    "10-Year Treasury Rate (%)": 4.08
+  },
+  {
+    "Date": "2025-10-30",
+    "10-Year Treasury Rate (%)": 4.11
+  },
+  {
+    "Date": "2025-10-31",
+    "10-Year Treasury Rate (%)": 4.11
+  },
+  {
+    "Date": "2025-11-03",
+    "10-Year Treasury Rate (%)": 4.13
+  },
+  {
+    "Date": "2025-11-04",
+    "10-Year Treasury Rate (%)": 4.1
+  },
+  {
+    "Date": "2025-11-05",
+    "10-Year Treasury Rate (%)": 4.17
+  },
+  {
+    "Date": "2025-11-06",
+    "10-Year Treasury Rate (%)": 4.11
+  },
+  {
+    "Date": "2025-11-07",
+    "10-Year Treasury Rate (%)": 4.11
   }
 ]

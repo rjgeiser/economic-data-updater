@@ -942,5 +942,73 @@
   {
     "Date": "2025-07-07",
     "Price (USD per gallon)": 3.125
+  },
+  {
+    "Date": "2025-07-14",
+    "Price (USD per gallon)": 3.13
+  },
+  {
+    "Date": "2025-07-21",
+    "Price (USD per gallon)": 3.121
+  },
+  {
+    "Date": "2025-07-28",
+    "Price (USD per gallon)": 3.123
+  },
+  {
+    "Date": "2025-08-04",
+    "Price (USD per gallon)": 3.14
+  },
+  {
+    "Date": "2025-08-11",
+    "Price (USD per gallon)": 3.118
+  },
+  {
+    "Date": "2025-08-18",
+    "Price (USD per gallon)": 3.125
+  },
+  {
+    "Date": "2025-08-25",
+    "Price (USD per gallon)": 3.147
+  },
+  {
+    "Date": "2025-09-01",
+    "Price (USD per gallon)": 3.177
+  },
+  {
+    "Date": "2025-09-08",
+    "Price (USD per gallon)": 3.192
+  },
+  {
+    "Date": "2025-09-15",
+    "Price (USD per gallon)": 3.168
+  },
+  {
+    "Date": "2025-09-22",
+    "Price (USD per gallon)": 3.173
+  },
+  {
+    "Date": "2025-09-29",
+    "Price (USD per gallon)": 3.118
+  },
+  {
+    "Date": "2025-10-06",
+    "Price (USD per gallon)": 3.124
+  },
+  {
+    "Date": "2025-10-13",
+    "Price (USD per gallon)": 3.061
+  },
+  {
+    "Date": "2025-10-20",
+    "Price (USD per gallon)": 3.019
+  },
+  {
+    "Date": "2025-10-27",
+    "Price (USD per gallon)": 3.035
+  },
+  {
+    "Date": "2025-11-03",
+    "Price (USD per gallon)": 3.019
   }
 ]

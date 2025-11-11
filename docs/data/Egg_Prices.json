@@ -210,5 +210,21 @@
   {
     "Date": "2025-05-01",
     "Price (USD per dozen)": 4.548
+  },
+  {
+    "Date": "2025-06-01",
+    "Price (USD per dozen)": 3.775
+  },
+  {
+    "Date": "2025-07-01",
+    "Price (USD per dozen)": 3.599
+  },
+  {
+    "Date": "2025-08-01",
+    "Price (USD per dozen)": 3.587
+  },
+  {
+    "Date": "2025-09-01",
+    "Price (USD per dozen)": 3.488
   }
 ]
