@@ -1,32 +1,12 @@
-
-name: Daily Policy Tracker
-
-on:
-  schedule:
-    - cron: "0 11 * * *"  # runs daily at 11:00 UTC
-  workflow_dispatch:  # allows manual run
-
-jobs:
-  run-policy-tracker:
-    runs-on: ubuntu-latest
-    env:
-      GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
-      GOOGLE_SHEET_ID: ${{ secrets.GOOGLE_SHEET_ID }}
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.9'
-
-      - name: Install dependencies
-        run: pip install gspread google-auth requests
-
-      - name: Write credentials to file
-        run: echo "$GOOGLE_CREDENTIALS" > credentials.json
-
-      - name: Run policy tracker script
-        run: python policy_tracker.py
+- name: Run policy tracker
+  env:
+    START_DATE: '2025-10-01'
+    END_DATE: '2025-11-11'
+    FR_TYPES: 'PRORULE'         # or 'PRORULE,NOTICE'
+    CHUNK_DAYS: '7'
+    REQUEST_TIMEOUT: '20'
+    MAX_RETRIES: '5'
+    DATA_OUT: 'docs/data/Policy_Events.json'
+    GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}  # optional
+    GOOGLE_SHEET_ID: ${{ secrets.GOOGLE_SHEET_ID }}        # optional
+  run: python policy_tracker.py
