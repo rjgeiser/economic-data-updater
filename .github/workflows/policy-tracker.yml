@@ -1,29 +1,29 @@
-name: Policy Tracker
+name: Run Policy Tracker
 
 on:
   schedule:
-    - cron: "0 5 * * *" # daily at 05:00 UTC
+    - cron: "0 18 * * *"   # daily 18:00 UTC (1pm ET during Standard Time)
   workflow_dispatch:
 
 permissions:
-  contents: write   # allow pushing snapshot updates back to the repo
+  contents: write
 
 jobs:
   run-policy-tracker:
     runs-on: ubuntu-latest
-
-    # Job-level env: expressions are allowed here
     env:
-      START_DATE: '2025-10-01'
-      END_DATE: '2025-11-11'
-      FR_TYPES: 'PRORULE'             # e.g., 'PRORULE,NOTICE'
-      CHUNK_DAYS: '7'
-      REQUEST_TIMEOUT: '20'
-      MAX_RETRIES: '5'
-      DATA_OUT: 'docs/data/Policy_Events.json'
-      # Safely pass secrets to the job's environment
-      GOOGLE_SHEET_ID: ${{ secrets.GOOGLE_SHEET_ID }}
+      # Tweak these as needed; safe defaults provided by the script if unset.
+      START_DATE: "2025-10-01"
+      END_DATE: "2025-11-11"
+      FR_TYPES: "PRORULE"          # e.g. "PRORULE,NOTICE"
+      CHUNK_DAYS: "7"
+      REQUEST_TIMEOUT: "20"
+      MAX_RETRIES: "5"
+      DATA_OUT: "docs/data/Policy_Events.json"
+
+      # Optional: provide both to enable Google Sheets sync
       GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
+      GOOGLE_SHEET_ID: ${{ secrets.GOOGLE_SHEET_ID }}
 
     steps:
       - name: Checkout
@@ -33,7 +33,7 @@ jobs:
           persist-credentials: true
 
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: "3.9"
 
@@ -42,27 +42,20 @@ jobs:
           pip install --upgrade pip
           pip install requests gspread google-auth
 
-      # Only write the credentials file if the secret exists (expression allowed here)
-      - name: Write Google credentials (if present)
-        if: ${{ env.GOOGLE_CREDENTIALS != '' }}
-        run: echo "$GOOGLE_CREDENTIALS" > credentials.json
-
       - name: Run policy tracker
         run: python policy_tracker.py
 
-      - name: Commit changes (if any)
+      - name: Commit JSON
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add docs/data/*.json || true
-          git diff --staged --quiet || git commit -m "🔄 Update JSON data snapshots"
+          git add docs/data/Policy_Events.json
+          git diff --staged --quiet || git commit -m "chore(policy): update Policy_Events.json"
 
       - name: Push changes
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # ensure remote uses the token
+          # ensure remote uses token (checkout usually sets this already)
           git remote set-url origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git"
-          # push back to the same branch this workflow is running on
           git push origin HEAD:${{ github.ref_name }}
-
