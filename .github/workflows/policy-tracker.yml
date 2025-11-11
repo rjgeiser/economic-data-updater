@@ -1,12 +1,42 @@
-- name: Run policy tracker
-  env:
-    START_DATE: '2025-10-01'
-    END_DATE: '2025-11-11'
-    FR_TYPES: 'PRORULE'         # or 'PRORULE,NOTICE'
-    CHUNK_DAYS: '7'
-    REQUEST_TIMEOUT: '20'
-    MAX_RETRIES: '5'
-    DATA_OUT: 'docs/data/Policy_Events.json'
-    GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}  # optional
-    GOOGLE_SHEET_ID: ${{ secrets.GOOGLE_SHEET_ID }}        # optional
-  run: python policy_tracker.py
+name: Policy Tracker
+
+on:
+  schedule:
+    - cron: "0 5 * * *"  # daily at 5:00 UTC
+  workflow_dispatch:
+
+jobs:
+  run-policy-tracker:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.9"
+
+      - name: Install dependencies
+        run: pip install requests gspread google-auth
+
+      - name: Write credentials file
+        run: echo "${{ secrets.GOOGLE_CREDENTIALS }}" > credentials.json
+        if: ${{ secrets.GOOGLE_CREDENTIALS != '' }}
+
+      # ✅ YOUR BLOCK GOES HERE (correctly nested under steps)
+      - name: Run policy tracker
+        env:
+          START_DATE: '2025-10-01'
+          END_DATE: '2025-11-11'
+          FR_TYPES: 'PRORULE'
+          CHUNK_DAYS: '7'
+          REQUEST_TIMEOUT: '20'
+          MAX_RETRIES: '5'
+          DATA_OUT: 'docs/data/Policy_Events.json'
+          GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
+          GOOGLE_SHEET_ID: ${{ secrets.GOOGLE_SHEET_ID }}
+        run: python policy_tracker.py
