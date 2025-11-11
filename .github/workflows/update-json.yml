@@ -1,10 +1,12 @@
-
 name: Update JSON Snapshots
 
 on:
   schedule:
-    - cron: "0 5 * * *"  # Runs daily at 5:00 UTC
+    - cron: "0 5 * * *"  # Runs daily at 05:00 UTC
   workflow_dispatch:
+
+permissions:
+  contents: write
 
 jobs:
   export-json:
@@ -12,34 +14,45 @@ jobs:
     env:
       GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
       GOOGLE_SHEET_ID: ${{ secrets.GOOGLE_SHEET_ID }}
+
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
-          persist-credentials: false
-          
+          fetch-depth: 0
+          persist-credentials: true  # ensures remote uses GITHUB_TOKEN
+
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: "3.9"
 
       - name: Install dependencies
-        run: pip install gspread google-auth
+        run: pip install --upgrade pip gspread google-auth
 
       - name: Write credentials file
         run: echo "$GOOGLE_CREDENTIALS" > service_account.json
 
       - name: Run JSON export script
-        run: python snapshot_to_json.py
-
-      - name: Commit and Push JSON files
-        env:
-          GH_PAT: ${{ secrets.GH_PAT }}
         run: |
-          git config user.name "github-actions"
-          git config user.email "github-actions@github.com"
-          git checkout main
-          git pull
-          git add docs/data/*.json
-          git commit -m "🔄 Update JSON data snapshots" || echo "No changes to commit"
-          git push https://x-access-token:${GH_PAT}@github.com/rjgeiser/economic-data-updater.git HEAD:main
+          python snapshot_to_json.py
+        timeout-minutes: 10
+
+      - name: Remove credentials file
+        if: always()
+        run: rm -f service_account.json
+
+      - name: Commit changes (if any)
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/data/*.json || true
+          git diff --staged --quiet || git commit -m "🔄 Update JSON data snapshots"
+
+      - name: Push changes
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # ensure the remote uses the token (checkout usually sets this already)
+          git remote set-url origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git"
+          git push origin HEAD:${{ github.ref_name }}
