@@ -20,8 +20,15 @@ page = 1
 all_results = []
 
 while True:
-    url = f"https://www.federalregister.gov/api/v1/documents.json?conditions[publication_date][gte]={start_date}&conditions[publication_date][lte]={end_date}&conditions[type]=PRORULE&per_page=100&page={page}"
-    res = requests.get(url)
+    url = (
+        "https://www.federalregister.gov/api/v1/documents.json"
+        f"?conditions[publication_date][gte]={start_date}"
+        f"&conditions[publication_date][lte]={end_date}"
+        "&conditions[type]=PRORULE"
+        "&per_page=100"
+        f"&page={page}"
+    )
+    res = requests.get(url, timeout=20)
     if res.status_code != 200:
         break
     docs = res.json().get("results", [])
@@ -33,8 +40,23 @@ while True:
         title = doc.get("title", "")
         desc = doc.get("abstract", "") or ""
         link = doc.get("html_url", "")
-        agencies = [a.get("name") for a in doc.get("agencies", [])]
-        agency_str = ", ".join(agencies) if agencies else "Unknown"
+
+        # Normalize agencies safely: handle None, dicts without 'name', or stray strings
+        raw_agencies = doc.get("agencies", []) or []
+        agency_names = []
+        for a in raw_agencies:
+            if not a:
+                continue
+            if isinstance(a, dict):
+                name = a.get("name") or a.get("short_name") or a.get("title")
+            else:
+                name = str(a)
+            if name:
+                name = str(name).strip()
+                if name:
+                    agency_names.append(name)
+
+        agency_str = ", ".join(agency_names) if agency_names else "Unknown"
 
         all_results.append({
             "Date": date,
