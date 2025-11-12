@@ -3,21 +3,24 @@ dayjs.extend(window.dayjs_plugin_utc);
 dayjs.extend(window.dayjs_plugin_timezone);
 
 // ---------- Config ----------
-const PATH_PREFIX = "docs/data/"; // change to "data/" if serving data directory next to this page
+// If GitHub Pages serves from the repo's `docs/` folder (recommended),
+// this page (index.html) should live inside `docs/`, and data should be in `docs/data/`.
+// From the published site root, the relative path to data is just "data/".
+const PATH_PREFIX = "data/";
 const SERIES = {
-  "Eggs": { file: "Egg_Prices.json", valueKeys: ["Price (USD per dozen)"] },
-  "Gas": { file: "Gas_Prices.json", valueKeys: ["Price (USD per gallon)"] },
+  "Eggs": { file: "Egg_Prices.json", valueKeys: ["Price (USD per dozen)","Price (USD)"] },
+  "Gas": { file: "Gas_Prices.json", valueKeys: ["Price (USD per gallon)","Price (USD)"] },
   "iPhone": { file: "iPhone_Prices.json", valueKeys: ["Price (USD)"] },
   "RAV4": { file: "Car_Prices.json", valueKeys: ["Price (USD)"] },
-  "10Y Treasury (%)": { file: "Interest_Rates.json", valueKeys: ["10-Year Treasury Rate (%)", "Rate (%)"] },
-  "S&P 500": { file: "Stock_Market.json", valueKeys: ["S&P 500 Index", "Close"] }
+  "10Y Treasury (%)": { file: "Interest_Rates.json", valueKeys: ["10-Year Treasury Rate (%)","Rate (%)"] },
+  "S&P 500": { file: "Stock_Market.json", valueKeys: ["S&P 500 Index","Close"] }
 };
 const POLICY_FILE = "Policy_Events.json";
 
 // state
-let rawSeries = {};       // { seriesName: [{date, value}] }
-let mergedDates = [];     // sorted dates across all series
-let policyEvents = [];    // [{date, title, type, agency, url}]
+let rawSeries = {};
+let mergedDates = [];
+let policyEvents = [];
 let selected = new Set(Object.keys(SERIES));
 let percentMode = false;
 let zscoreMode = false;
