@@ -3,9 +3,6 @@ dayjs.extend(window.dayjs_plugin_utc);
 dayjs.extend(window.dayjs_plugin_timezone);
 
 // ---------- Config ----------
-// If GitHub Pages serves from the repo's `docs/` folder (recommended),
-// this page (index.html) should live inside `docs/`, and data should be in `docs/data/`.
-// From the published site root, the relative path to data is just "data/".
 const PATH_PREFIX = "data/";
 const SERIES = {
   "Eggs": { file: "Egg_Prices.json", valueKeys: ["Price (USD per dozen)","Price (USD)"] },
@@ -16,6 +13,10 @@ const SERIES = {
   "S&P 500": { file: "Stock_Market.json", valueKeys: ["S&P 500 Index","Close"] }
 };
 const POLICY_FILE = "Policy_Events.json";
+
+// Performance knobs
+const MAX_EVENT_MARKERS = 120;   // cap vertical policy lines
+const MAX_VISIBLE_POINTS = 1500; // decimation target per dataset
 
 // state
 let rawSeries = {};
@@ -41,9 +42,7 @@ function rollingAverage(values, n) {
   let sum = 0, cnt = 0;
   for (let i = 0; i < values.length; i++) {
     if (values[i] != null) { sum += values[i]; cnt++; }
-    if (i >= n) {
-      if (values[i-n] != null) { sum -= values[i-n]; cnt--; }
-    }
+    if (i >= n && values[i-n] != null) { sum -= values[i-n]; cnt--; }
     out[i] = cnt > 0 ? sum / cnt : null;
   }
   return out;
@@ -92,7 +91,7 @@ function pearson(x, y) {
 
 async function fetchJSON(rel) {
   const url = `${PATH_PREFIX}${rel}`;
-  const res = await fetch(url);
+  const res = await fetch(url, { cache: "no-cache" });
   if (!res.ok) throw new Error(`Failed to load ${url}: ${res.status}`);
   return res.json();
 }
@@ -137,21 +136,14 @@ function initUI() {
     const div = document.createElement("button");
     div.className = "chip " + (selected.has(name) ? "chip-active" : "");
     div.textContent = name;
-    div.onclick = () => {
-      if (selected.has(name)) selected.delete(name); else selected.add(name);
-      renderAll();
-    };
+    div.onclick = () => { toggleSelection(name); };
     chips.appendChild(div);
   });
 
-  const percentToggle = document.getElementById("percentToggle");
-  const zToggle = document.getElementById("zscoreToggle");
-  const sToggle = document.getElementById("smoothToggle");
-  const sWin = document.getElementById("smoothWindow");
-  percentToggle.onchange = () => { percentMode = percentToggle.checked; renderAll(); };
-  zToggle.onchange = () => { zscoreMode = zToggle.checked; renderAll(); };
-  sToggle.onchange = () => { smoothMode = sToggle.checked; renderAll(); };
-  sWin.onchange = () => { smoothN = Math.max(2, Number(sWin.value||7)); renderAll(); };
+  bindControl("percentToggle", (el)=> { percentMode = el.checked; scheduleRender(); });
+  bindControl("zscoreToggle",   (el)=> { zscoreMode = el.checked; scheduleRender(); });
+  bindControl("smoothToggle",   (el)=> { smoothMode = el.checked; scheduleRender(); });
+  bindControl("smoothWindow",   (el)=> { smoothN = Math.max(2, Number(el.value||7)); scheduleRender(); });
 
   const sd = document.getElementById("startDate");
   const ed = document.getElementById("endDate");
@@ -163,7 +155,7 @@ function initUI() {
   document.getElementById("applyRange").onclick = () => {
     dateRange.start = sd.value || null;
     dateRange.end = ed.value || null;
-    renderAll();
+    scheduleRender();
   };
 
   const typeSel = document.getElementById("typeFilter");
@@ -172,7 +164,7 @@ function initUI() {
   document.getElementById("applyEventFilters").onclick = () => {
     typeFilter = new Set(Array.from(typeSel.selectedOptions).map(o=>o.value));
     agencyFilterText = (document.getElementById("agencyFilter").value || "").toLowerCase();
-    renderAll();
+    scheduleRender();
   };
 
   const wrap = document.getElementById("anchorSelectWrap");
@@ -184,13 +176,23 @@ function initUI() {
     opt.value = k; opt.textContent = k; if (k === anchor) opt.selected = true;
     sel.appendChild(opt);
   }
-  sel.onchange = () => { anchor = sel.value; renderAll(); };
+  sel.onchange = () => { anchor = sel.value; scheduleRender(); };
   wrap.appendChild(sel);
 
   document.getElementById("updateLag").onclick = () => {
     currentLag = Number(document.getElementById("lagDays").value || 0);
-    renderAll();
+    scheduleRender();
   };
+}
+
+function bindControl(id, fn) {
+  const el = document.getElementById(id);
+  el.addEventListener("change", ()=>fn(el), { passive: true });
+}
+
+function toggleSelection(name) {
+  if (selected.has(name)) selected.delete(name); else selected.add(name);
+  scheduleRender();
 }
 
 function buildFrame() {
@@ -215,20 +217,27 @@ function buildFrame() {
 }
 
 let chartInstance = null;
+let renderScheduled = false;
+let rafId = null;
 
-function drawEventsOverlay(ctx, xScale, chartArea, filteredEvents) {
-  ctx.save();
-  ctx.strokeStyle = "rgba(0,0,0,0.25)";
-  filteredEvents.forEach(ev => {
-    const x = xScale.getPixelForValue(ev.date);
-    if (x >= chartArea.left && x <= chartArea.right) {
-      ctx.beginPath();
-      ctx.moveTo(x, chartArea.top);
-      ctx.lineTo(x, chartArea.bottom);
-      ctx.stroke();
-    }
+function scheduleRender() {
+  if (renderScheduled) return;
+  renderScheduled = true;
+  if (rafId) cancelAnimationFrame(rafId);
+  rafId = requestAnimationFrame(() => {
+    renderScheduled = false;
+    renderAll();
   });
-  ctx.restore();
+}
+
+function subsampleEvents(evs) {
+  if (evs.length <= MAX_EVENT_MARKERS) return evs;
+  const step = evs.length / MAX_EVENT_MARKERS;
+  const out = [];
+  for (let i=0; i<MAX_EVENT_MARKERS; i++) {
+    out.push(evs[Math.floor(i*step)]);
+  }
+  return out;
 }
 
 function renderChart(frame, filteredEvents) {
@@ -236,9 +245,7 @@ function renderChart(frame, filteredEvents) {
   const labels = frame.dates;
   const visibleSeries = Array.from(selected);
 
-  const palette = [
-    "#0ea5e9","#ef4444","#10b981","#f59e0b","#8b5cf6","#14b8a6","#f97316","#22c55e"
-  ];
+  const palette = ["#0ea5e9","#ef4444","#10b981","#f59e0b","#8b5cf6","#14b8a6","#f97316","#22c55e"];
 
   const datasets = visibleSeries.map((name, i) => ({
     label: name,
@@ -248,48 +255,79 @@ function renderChart(frame, filteredEvents) {
     borderWidth: 2,
     pointRadius: 0,
     spanGaps: true,
-    tension: 0.15
+    tension: 0.1,     // slightly lower tension for performance
+    parsing: false    // skip object parsing
   }));
 
-  if (chartInstance) chartInstance.destroy();
-  chartInstance = new Chart(ctx, {
-    type: "line",
-    data: { labels, datasets },
-    options: {
-      animation: false,
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: { position: "bottom" },
-        tooltip: {
-          mode: "index",
-          intersect: false,
-          callbacks: {
-            title: (items) => items[0].label,
-          }
-        }
+  const visibleEvents = subsampleEvents(filteredEvents.filter(ev => {
+    if (frame.dates[0] && ev.date < frame.dates[0]) return false;
+    if (frame.dates.at(-1) && ev.date > frame.dates.at(-1)) return false;
+    return true;
+  }));
+
+  const options = {
+    animation: { duration: 0 }, // disable animations
+    responsive: true,
+    maintainAspectRatio: false,
+    normalized: true, // better perf on large datasets
+    plugins: {
+      legend: { position: "bottom", labels: { boxWidth: 12 } },
+      tooltip: {
+        mode: "index",
+        intersect: false,
+        animation: false
       },
-      scales: {
-        x: { ticks: { maxRotation: 0, autoSkip: true } },
-        y: { beginAtZero: false }
-      },
-      interaction: { mode: "index", intersect: false },
-      events: ["mousemove","click","mouseout","touchstart","touchmove","touchend"]
-    },
-    plugins: [{
-      id: "events-overlay",
-      afterDatasetsDraw(chart) {
-        const { ctx, chartArea, scales } = chart;
-        drawEventsOverlay(ctx, scales.x, chartArea, filteredEvents);
+      decimation: {
+        enabled: true,
+        algorithm: "lttb",
+        samples: MAX_VISIBLE_POINTS
       }
-    }]
-  });
+    },
+    scales: {
+      x: { ticks: { maxRotation: 0, autoSkip: true } },
+      y: { beginAtZero: false }
+    },
+    interaction: { mode: "index", intersect: false, axis: "x" },
+    // Reduce the number of DOM input events to cut rAF pressure
+    events: ["mousemove","mouseout","click","touchstart","touchmove","touchend"]
+  };
+
+  const eventsOverlay = {
+    id: "events-overlay",
+    afterDatasetsDraw(chart) {
+      const { ctx, chartArea, scales } = chart;
+      const xScale = scales.x;
+      ctx.save();
+      ctx.strokeStyle = "rgba(0,0,0,0.25)";
+      for (const ev of visibleEvents) {
+        const x = xScale.getPixelForValue(ev.date);
+        if (x >= chartArea.left && x <= chartArea.right) {
+          ctx.beginPath();
+          ctx.moveTo(x, chartArea.top);
+          ctx.lineTo(x, chartArea.bottom);
+          ctx.stroke();
+        }
+      }
+      ctx.restore();
+    }
+  };
+
+  if (!chartInstance) {
+    chartInstance = new Chart(ctx, { type: "line", data: { labels, datasets }, options, plugins: [eventsOverlay] });
+  } else {
+    chartInstance.data.labels = labels;
+    chartInstance.data.datasets = datasets;
+    chartInstance.options = options; // update options in case toggles changed
+    chartInstance._plugins = [eventsOverlay]; // ensure plugin is refreshed with new filtered events
+    chartInstance.update("none"); // no animation update
+  }
 }
 
 function renderEventsList(filteredEvents) {
   const list = document.getElementById("eventsList");
   list.innerHTML = "";
-  filteredEvents.slice(0, 250).forEach(ev => {
+  const evs = subsampleEvents(filteredEvents);
+  evs.forEach(ev => {
     const a = document.createElement("a");
     a.href = ev.url || "#";
     a.target = "_blank";
@@ -297,10 +335,10 @@ function renderEventsList(filteredEvents) {
     a.innerHTML = `<span class="text-xs text-slate-500 mr-2">${ev.date}</span> <span class="font-medium">${ev.title}</span> <span class="text-xs text-slate-500 ml-2">${ev.type}</span>`;
     list.appendChild(a);
   });
-  if (filteredEvents.length > 250) {
+  if (filteredEvents.length > evs.length) {
     const more = document.createElement("div");
     more.className = "text-xs text-slate-500 mt-1";
-    more.textContent = `(+${filteredEvents.length - 250} more hidden)`;
+    more.textContent = `(+${filteredEvents.length - evs.length} more hidden)`;
     list.appendChild(more);
   }
 }
