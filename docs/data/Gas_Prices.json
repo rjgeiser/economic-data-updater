@@ -1022,5 +1022,9 @@
   {
     "Date": "2025-11-24",
     "Price (USD per gallon)": 3.061
+  },
+  {
+    "Date": "2025-12-01",
+    "Price (USD per gallon)": 2.985
   }
 ]
